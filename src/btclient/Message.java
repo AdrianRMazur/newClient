@@ -23,9 +23,9 @@ public class Message {
 		toShake = new byte[68];
 		toShake[0]= (byte) 19;
 		System.arraycopy(Constants.BITTORRENTPROTOCOL, 0, toShake, 1, 19);
-		/*for(int i=20;i<28;i++){
+		for(int i=20;i<28;i++){
 			toShake[i]=(byte)0;
-		}*/
+		}
 		System.arraycopy(torrentinfo.info_hash.array(), 0, toShake, 28, 20);
 		System.arraycopy(Constants.PEERID, 0, toShake, 48, 10);
 		

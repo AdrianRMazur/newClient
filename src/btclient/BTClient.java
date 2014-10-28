@@ -29,7 +29,7 @@ public class BTClient {
 	private static boolean unChoke; 
 	private static int lastPieceLength; 
 	
-	public static void main (String [] args) throws IOException {
+	public static void main (String [] args) throws IOException, InterruptedException {
 		
 		if (args.length!=2){
 			System.out.println("Error: Provide torrent file name and save file name. \n");
@@ -121,7 +121,7 @@ public class BTClient {
 		
 	}
 	
-	public static boolean validatePeers(byte[] serverreply) throws IOException{
+	public static boolean validatePeers(byte[] serverreply) throws IOException, InterruptedException{
 		Map<ByteBuffer, Object> obj = null;  
 		try {
 			obj=(Map<ByteBuffer, Object>)Bencoder2.decode(serverreply);
@@ -146,15 +146,16 @@ public class BTClient {
 		return false; 
 	}
 	
-	public static void peerDownload(/*Peer peer*/) throws IOException{
+	public static void peerDownload(/*Peer peer*/) throws IOException, InterruptedException{
 		/*handshake part might have to be done outside...... Since it is only done once?*/
-		byte [] toShake = new byte[68];
 		Socket s = null;
 		Message message= null; 
 		InputStream input=null;
 		OutputStream output =null; 
 		DataOutputStream dataout= null;
-		DataInputStream datain=null; 
+		DataInputStream datain=null;
+		
+		/*hard coded peer*/
 		try {
 			s = new Socket(/*peer.getIP()*/"128.6.171.131", /*peer.getPort()*/24399);
 			input= s.getInputStream();
@@ -179,42 +180,58 @@ public class BTClient {
 			closer();
 		}
 		
+		/*The problem is that the shakeFrom response tends to come too quick, and the fromShake gets a few additional bits*/
+		
+		int j=0;
+		byte[] fromShake = new byte[67];
+		//byte[] fromShake2 = new byte[68];
 		
 		
-		byte[] fromShake = new byte[68];
 		try {
-			datain.readFully(fromShake);
+			
+			while(datain.readByte()!=19);
+			datain.read(fromShake);
+			//datain.read(fromShake2); 
 		} catch (IOException e) {
-			System.out.println("2");
 			e.printStackTrace();
 			closer(); 
 
 		}
-		System.out.println(fromShake.toString());
-//byte[] infohashpart = Arrays.copyOfRange(fromShake, 28, 48);
 		
-	/*	if (Arrays.equals(infohashpart, torrentinfo.info_hash.array()) == false){
+		System.out.println("toShake");
+		ToolKit.print(message.getShake());
+		System.out.println("fromShake:");
+		ToolKit.print(fromShake);
+		/*System.out.println("fromShake2:");
+		ToolKit.print(fromShake2);
+*/
+		
+		byte[] infohashpart = Arrays.copyOfRange(fromShake, 27, 47);
+		
+		if (Arrays.equals(infohashpart, torrentinfo.info_hash.array()) == false){
+			System.out.println("BLAH");
 			try {
 				s.close();
 				dataout.close();
 				datain.close();
 			} catch (IOException e) {
+				closer(); 
 				e.printStackTrace();
 			} 
 
-			System.out.println("CHECK");
-		}*/
+		}
 		
 		unChoke=false; 
 		lastPieceLength= torrentinfo.file_length - (torrentinfo.piece_length * (torrentinfo.piece_hashes.length-1));
 		byte str; 
 		
-		for (;;){
+		/*Don't think we need this!*/
+		/*for (;;){
 			str=datain.readByte();
 			System.out.println(str);
 			if (str ==-1)
 				break;  		
-		}
+		}*/
 		
 		while(unChoke==false){
 			byte [] interested = new byte [5];	
@@ -226,7 +243,9 @@ public class BTClient {
 			
 			for (int c = 0; c<5; c++){
 				if (c==4){
-					if (datain.readByte() ==1){
+					str=datain.readByte();
+					System.out.println(str);
+					if (str ==1){
 						unChoke = true; 
 						break; 
 					}
@@ -235,7 +254,9 @@ public class BTClient {
 			}
 		}
 		
-		
+		datain.close();
+		dataout.close();
+		s.close();
 	}
 	
 	public void peerUpload(Peer peer){
