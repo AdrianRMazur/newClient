@@ -259,6 +259,7 @@ public class BTClient {
 			//**************************************************************************
 			// *************************** ADRIAN CODE HERE ERROR AND QUIT***********************
 			//***************************************************************************
+			closer(); 
 		};
 		unChoke=false; 
 		lastPieceLength= torrentinfo.file_length - (torrentinfo.piece_length * (torrentinfo.piece_hashes.length-1));
