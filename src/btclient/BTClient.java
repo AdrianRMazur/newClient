@@ -28,6 +28,7 @@ public class BTClient {
 	private static TorrentInfo torrentinfo = null; 
 	private static boolean unChoke; 
 	private static int lastPieceLength; 
+	private static Peer currentpeer; 
 	
 	public static void main (String [] args) throws IOException, InterruptedException {
 		
@@ -133,8 +134,26 @@ public class BTClient {
 		//ToolKit.print(obj);
 		Peer[] peers = new Peer[peerList.size()]; 
 		for(int i=0;i<peerList.size();i++){
-			peers[i]=new Peer( (Map<ByteBuffer, Object>) peerList.get(i)); 	
+			peers[i]=new Peer( (Map<ByteBuffer, Object>)peerList.get(i)); 	
 		}
+		
+		
+		// tries to open socket. goes peer by peer until socket is opened 
+		for (int i=0; i<peerList.size(); i++){
+			if (peers[i].openSocket() == true){
+				currentpeer = peers[i];
+				break; 
+			}	
+			if (i== peerList.size()-1){
+				// ran out of peers to check 
+				//**************************************************************************
+				// *************************** ADRIAN CODE HERE ERROR AND QUIT ***********************
+				//***************************************************************************
+			}
+		}
+		
+		
+		
 		
 		/*downloading from peers starts here, multi threading..... */
 		
@@ -147,17 +166,22 @@ public class BTClient {
 	}
 	
 	public static void peerDownload(/*Peer peer*/) throws IOException, InterruptedException{
+		
+		
+		
 		/*handshake part might have to be done outside...... Since it is only done once?*/
-		Socket s = null;
+	/*	Socket s = null;
 		Message message= null; 
 		InputStream input=null;
 		OutputStream output =null; 
 		DataOutputStream dataout= null;
 		DataInputStream datain=null;
+		*/ 
 		
 		/*hard coded peer*/
+	/*
 		try {
-			s = new Socket(/*peer.getIP()*/"128.6.171.131", /*peer.getPort()*/24399);
+			s = new Socket(/"128.6.171.131", 24399);
 			input= s.getInputStream();
 			output = s.getOutputStream(); 
 			dataout= new DataOutputStream(output);
@@ -168,8 +192,11 @@ public class BTClient {
 			System.out.println("3");
 			closer();
 		}
+		*/ 
 		
-		message= new Message (Constants.BITTORRENTPROTOCOL,Constants.PEERID, torrentinfo); 
+
+		
+	/*	
 		try {
 			dataout.write(message.toShake);
 			dataout.flush();
@@ -178,35 +205,38 @@ public class BTClient {
 			System.out.println("1");
 			e.printStackTrace();
 			closer();
-		}
+		}*/
 		
 		/*The problem is that the shakeFrom response tends to come too quick, and the fromShake gets a few additional bits*/
 		
-		int j=0;
-		byte[] fromShake = new byte[67];
-		//byte[] fromShake2 = new byte[68];
+		
+	
+		//int j=0;
+	/*	byte[] fromShake = new byte[67];
+	
 		
 		
 		try {
 			
 			while(datain.readByte()!=19);
 			datain.read(fromShake);
-			//datain.read(fromShake2); 
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 			closer(); 
 
-		}
-		
+		} */
+	/*	
 		System.out.println("toShake");
 		ToolKit.print(message.getShake());
 		System.out.println("fromShake:");
-		ToolKit.print(fromShake);
+		ToolKit.print(fromShake); */
+		
 		/*System.out.println("fromShake2:");
 		ToolKit.print(fromShake2);
 */
 		
-		byte[] infohashpart = Arrays.copyOfRange(fromShake, 27, 47);
+	/*	byte[] infohashpart = Arrays.copyOfRange(fromShake, 27, 47);
 		
 		if (Arrays.equals(infohashpart, torrentinfo.info_hash.array()) == false){
 			System.out.println("BLAH");
@@ -219,8 +249,15 @@ public class BTClient {
 				e.printStackTrace();
 			} 
 
-		}
+		} */
 		
+		Message message= new Message (Constants.BITTORRENTPROTOCOL,Constants.PEERID, torrentinfo); 
+		if (currentpeer.shakeHands(message, torrentinfo) == false){
+			// handshake failed
+			//**************************************************************************
+			// *************************** ADRIAN CODE HERE ERROR AND QUIT***********************
+			//***************************************************************************
+		};
 		unChoke=false; 
 		lastPieceLength= torrentinfo.file_length - (torrentinfo.piece_length * (torrentinfo.piece_hashes.length-1));
 		byte str; 
@@ -237,26 +274,24 @@ public class BTClient {
 			byte [] interested = new byte [5];	
 			System.arraycopy(toEndianArray(1), 0, interested, 0, 4);
 			interested[4] = (byte) 2;
-			dataout.write(interested);
-			dataout.flush(); 
-			s.setSoTimeout(1300000);
+			currentpeer.send().write(interested);
+			currentpeer.send().flush(); 
+			currentpeer.modifysocket().setSoTimeout(1300000);
 			
 			for (int c = 0; c<5; c++){
 				if (c==4){
-					str=datain.readByte();
+					str=currentpeer.receive().readByte();
 					System.out.println(str);
 					if (str ==1){
 						unChoke = true; 
 						break; 
 					}
 				}
-				datain.readByte();
+				currentpeer.receive().readByte();
 			}
 		}
 		
-		datain.close();
-		dataout.close();
-		s.close();
+		currentpeer.closeSocket();
 	}
 	
 	public void peerUpload(Peer peer){
