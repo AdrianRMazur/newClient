@@ -132,8 +132,10 @@ public class BTClient {
 		ArrayList peerList = (ArrayList)obj.get(Constants.PEERS);
 		//System.out.println(peerList.size());
 		//ToolKit.print(obj);
-		Peer[] peers = new Peer[peerList.size()]; 
+		Peer[] peers = new Peer[peerList.size()];
+
 		for(int i=0;i<peerList.size();i++){
+
 			peers[i]=new Peer( (Map<ByteBuffer, Object>)peerList.get(i)); 	
 		}
 		

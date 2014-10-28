@@ -10,7 +10,7 @@ public class Constants {
 	
 	
 	public final static ByteBuffer PEERS= ByteBuffer.wrap(new byte [] {'p','e','e','r','s'});
-	public final static ByteBuffer PORT= ByteBuffer.wrap(new byte [] {'p','o','t','t'});
+	public final static ByteBuffer PORT= (ByteBuffer.wrap(new byte [] {'p','o','r','t'}));
 	public final static ByteBuffer IP= ByteBuffer.wrap(new byte [] {'i','p'});
 	
 	

@@ -22,6 +22,7 @@ public class Peer {
 	private DataInputStream datain; 
 
 	public Peer(Map<ByteBuffer,Object> peerinfo){
+		System.out.println("LOL");
 		port = (Integer) peerinfo.get(Constants.PORT);
 			try {
 				ip = new String ( ((ByteBuffer)peerinfo.get(Constants.IP)).array(), "ASCII" );
