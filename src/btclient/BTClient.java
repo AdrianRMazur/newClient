@@ -24,7 +24,9 @@ import java.util.Map;
 public class BTClient {
 
 	public static TorrentInfo torrentinfo = null; 
-	public static byte[] downloaded=null;
+	public static ByteBuffer[] downloaded=null;
+	public static boolean [] startedDO = null; 
+	public static boolean [] completedDO = null; 
 	
 	
 	
@@ -32,7 +34,7 @@ public class BTClient {
 	private static DataInputStream input;
 	private static boolean unChoke; 
 	private static int lastPieceLength; 
-	private static Peer currentpeer; 
+	private static ArrayList <Peer> currentpeer; 
 	
 	
 	public static void main (String [] args) throws IOException, InterruptedException {
@@ -151,6 +153,10 @@ public class BTClient {
 				currentpeer = peers[i];
 				break; 
 			}	
+			else if (peers[i].openSocket() == true){
+				currentpeer = peers[i]; 
+				break; 
+			}
 			if (i== peerList.size()-1){
 				// ran out of peers to check 
 				//**************************************************************************
@@ -174,89 +180,7 @@ public class BTClient {
 	
 	public static void peerDownload(/*Peer peer*/) throws IOException, InterruptedException{
 		
-		
-		
-		/*handshake part might have to be done outside...... Since it is only done once?*/
-	/*	Socket s = null;
-		Message message= null; 
-		InputStream input=null;
-		OutputStream output =null; 
-		DataOutputStream dataout= null;
-		DataInputStream datain=null;
-		*/ 
-		
-		/*hard coded peer*/
-	/*
-		try {
-			s = new Socket(/"128.6.171.131", 24399);
-			input= s.getInputStream();
-			output = s.getOutputStream(); 
-			dataout= new DataOutputStream(output);
-			datain=new DataInputStream(input);
-		} catch (IOException e) {
 			
-			e.printStackTrace();
-			System.out.println("3");
-			closer();
-		}
-		*/ 
-		
-
-		
-	/*	
-		try {
-			dataout.write(message.toShake);
-			dataout.flush();
-			s.setSoTimeout(1000);
-		} catch (IOException e) {
-			System.out.println("1");
-			e.printStackTrace();
-			closer();
-		}*/
-		
-		/*The problem is that the shakeFrom response tends to come too quick, and the fromShake gets a few additional bits*/
-		
-		
-	
-		//int j=0;
-	/*	byte[] fromShake = new byte[67];
-	
-		
-		
-		try {
-			
-			while(datain.readByte()!=19);
-			datain.read(fromShake);
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-			closer(); 
-
-		} */
-	/*	
-		System.out.println("toShake");
-		ToolKit.print(message.getShake());
-		System.out.println("fromShake:");
-		ToolKit.print(fromShake); */
-		
-		/*System.out.println("fromShake2:");
-		ToolKit.print(fromShake2);
-*/
-		
-	/*	byte[] infohashpart = Arrays.copyOfRange(fromShake, 27, 47);
-		
-		if (Arrays.equals(infohashpart, torrentinfo.info_hash.array()) == false){
-			System.out.println("BLAH");
-			try {
-				s.close();
-				dataout.close();
-				datain.close();
-			} catch (IOException e) {
-				closer(); 
-				e.printStackTrace();
-			} 
-
-		} */
 		
 		Message message= new Message (Constants.BITTORRENTPROTOCOL,Constants.PEERID, torrentinfo); 
 		if (currentpeer.shakeHands(message, torrentinfo) == false){
@@ -270,14 +194,7 @@ public class BTClient {
 		lastPieceLength= torrentinfo.file_length - (torrentinfo.piece_length * (torrentinfo.piece_hashes.length-1));
 		byte str; 
 		
-		/*Don't think we need this!*/
-		/*for (;;){
-			str=datain.readByte();
-			System.out.println(str);
-			if (str ==-1)
-				break;  		
-		}*/
-		
+	
 		while(unChoke==false){
 			byte [] interested = new byte [5];	
 			System.arraycopy(toEndianArray(1), 0, interested, 0, 4);
