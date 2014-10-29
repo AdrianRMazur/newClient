@@ -11,7 +11,7 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Map;
 
-public class Peer {
+public class Peer extends BTClient implements Runnable {
 	
 	private int port;
 	private String ip = null;
@@ -26,6 +26,14 @@ public class Peer {
 			try {
 				ip = new String ( ((ByteBuffer)peerinfo.get(Constants.IP)).array(), "ASCII" );
 			} catch (UnsupportedEncodingException e) {}
+	}
+	
+	public Peer(Socket con) throws IOException{
+		output=con.getOutputStream();
+		input=con.getInputStream();
+		datain=new DataInputStream(input);
+		dataout=new DataOutputStream(output);
+		
 	}
 	
 	public boolean openSocket(){
@@ -83,6 +91,55 @@ public class Peer {
 
 		return true; 
 	}
+	
+	public boolean uploadToPeer() throws IOException{
+		byte[] fromShake=new byte[68];
+		datain.read(fromShake); 
+		int i; 
+		int index;
+		int begin;
+		int length;
+		
+		for(i=0; i<68; i++){
+			if(fromShake[i]!=(byte)19){
+				System.out.println("The connecting host is not Bit Torrent");
+				return false; 
+			}
+		}
+		//return back to them, but with our part of the handshake
+		Message message = new Message(Constants.BITTORRENTPROTOCOL, Constants.PEERID,BTClient.torrentinfo); 
+		dataout.write(message.toShake);
+		dataout.flush();
+		
+		/*Start reading the bytes sent to us*/
+		for(;;){
+			int prefix= datain.readInt(); //Length-prefix
+			if(prefix==0){
+				continue; 
+			}
+			byte id=datain .readByte();//message ID
+			
+			if(id==Constants.HAVE_ID){ //Have 
+				datain.readInt();
+				continue; 
+			}
+			else if(id==Constants.REQUEST_ID){ //request, get the payload bits 
+				index=datain.readInt();
+				begin=datain.readInt();
+				length=datain.readInt(); 
+				
+				
+			}
+			
+			
+		}
+		
+		
+		
+		
+		
+		
+	}
 
 
 // not sure about these methods
@@ -105,6 +162,18 @@ public class Peer {
 	public String getIP(){
 		return ip; 
 	}
+
+	public void run() {
+		try {
+			uploadToPeer();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		
+	}
+	
+	
 	
 	
 }

@@ -22,7 +22,7 @@ public class Message {
 		urlstring=null; 
 		toShake = new byte[68];
 		toShake[0]= (byte) 19;
-		System.arraycopy(Constants.BITTORRENTPROTOCOL, 0, toShake, 1, 19);
+		System.arraycopy(bittorrentprotocol, 0, toShake, 1, 19);
 		for(int i=20;i<28;i++){
 			toShake[i]=(byte)0;
 		}
@@ -30,7 +30,7 @@ public class Message {
 		System.arraycopy(Constants.PEERID, 0, toShake, 48, 10);
 		
 	}
- 
+	
 
 
 	public String getURL(){

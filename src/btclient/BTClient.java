@@ -23,12 +23,17 @@ import java.util.Map;
 
 public class BTClient {
 
+	public static TorrentInfo torrentinfo = null; 
+	public static byte[] downloaded=null;
+	
+	
+	
 	private static FileOutputStream savefile = null;
 	private static DataInputStream input;
-	private static TorrentInfo torrentinfo = null; 
 	private static boolean unChoke; 
 	private static int lastPieceLength; 
 	private static Peer currentpeer; 
+	
 	
 	public static void main (String [] args) throws IOException, InterruptedException {
 		
