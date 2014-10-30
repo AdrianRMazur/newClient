@@ -193,9 +193,7 @@ public class BTClient {
 		
 		
 		for (int c = 0; c < downloaded.length; c++) {
-			
-		
-		
+	
 			try {
 				savefile.write(downloaded[c]);
 				

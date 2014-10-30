@@ -61,7 +61,7 @@ public class Downloader extends BTClient implements Runnable{
 	private static boolean getdata(){
 		 
 		int lastpiecelength= torrentinfo.file_length - (torrentinfo.piece_length * (torrentinfo.piece_hashes.length-1));
-		
+		System.out.println(lastpiecelength);
 		for (int count = 0; count <downloaded.length; count++){
 			System.out.println(count);
 			int temp = 0; 
@@ -72,13 +72,16 @@ public class Downloader extends BTClient implements Runnable{
 				startedDL[count]=true;
 			}
 			
-			downloaded[count] = new byte [torrentinfo.piece_length];
+		
 			for (;;){
 				byte [] msgrequest = new byte [17];
 				System.arraycopy(toEndianArray(13), 0, msgrequest, 0, 4);
 				msgrequest[4] = (byte)6;
 				// normal pieces 
 				if (count < torrentinfo.piece_hashes.length-1){
+					if (temp==0){
+						downloaded[count] = new byte [torrentinfo.piece_length];
+					}
 					System.arraycopy(toEndianArray(count), 0, msgrequest, 5, 4);
 					System.arraycopy(toEndianArray(temp), 0, msgrequest, 9, 4);
 					System.arraycopy(toEndianArray(16384), 0, msgrequest, 13, 4);
@@ -119,10 +122,16 @@ public class Downloader extends BTClient implements Runnable{
 				// last piece
 				else {
 					int size = 16384;  
-					if (lastpiecelength < 16384)
+					if (lastpiecelength < 16384){
+						System.out.println("asdfsdfsd");
 						size = lastpiecelength; 
+					//	downloaded[count] = new byte[size];
+					}	
 					
 					lastpiecelength = lastpiecelength - 16384;
+					if (temp==0 ){
+						downloaded[count] = new byte[size+lastpiecelength];
+					}
 					
 					System.arraycopy(toEndianArray(count), 0, msgrequest, 5, 4);
 					System.arraycopy(toEndianArray(temp), 0, msgrequest, 9, 4);
