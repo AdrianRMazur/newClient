@@ -162,14 +162,38 @@ public class BTClient {
 		
 		for (int c = 0; c<peers.length; c++){
 			Downloader temp = new Downloader(peers[c]);
-			new Thread(temp).start();
+			new Thread(temp).start();			
 		}
+		
+		
+		
+		for (int c=0; c< completedDL.length; c++){
+			
+			if (completedDL[c] == false){
+
+				c=-1;
+				continue; 
+			}
+			
+			
+		}
+		
+		
 		
 		return true; 
 	}
 	
 	private static void savetofile(){
+		
+		
+		
 		for (int c = 0; c < downloaded.length; c++) {
+			
+			
+			if (completedDL[c] == false){
+				c =-1; 
+				continue; 
+			}
 			try {
 				savefile.write(downloaded[c]);
 				

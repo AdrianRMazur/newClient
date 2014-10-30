@@ -11,8 +11,10 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Map;
 
+
+
 public class Peer extends BTClient implements Runnable {
-	
+	private Thread t = new Thread ();	
 	private int port;
 	private String ip = null;
 	private Socket s; 
@@ -23,9 +25,13 @@ public class Peer extends BTClient implements Runnable {
 
 	public Peer(Map<ByteBuffer,Object> peerinfo){
 		port = (Integer) peerinfo.get(Constants.PORT);
+		System.out.println(port);
 			try {
 				ip = new String ( ((ByteBuffer)peerinfo.get(Constants.IP)).array(), "ASCII" );
-			} catch (UnsupportedEncodingException e) {}
+			} catch (UnsupportedEncodingException e) {
+			}
+			System.out.println(ip);
+
 	}
 	
 	public Peer(Socket con) throws IOException{
@@ -171,16 +177,11 @@ public class Peer extends BTClient implements Runnable {
 		return ip; 
 	}
 
-	public void run() {
-		try {
-			uploadToPeer();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
-		
-	}
 	
+	public void start(){
+		Thread t = new Thread ();
+		t.start(); 
+	}
 	
 	
 	

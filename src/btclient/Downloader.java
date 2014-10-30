@@ -176,11 +176,18 @@ public class Downloader extends BTClient implements Runnable{
 			return; 
 		}
 		
+		System.out.println("made it here1");
+
+		
 		if (currpeer.openSocket() == false) {
+			System.out.println("333");
 			// connection failed on socket creation;
 			return;
 		}
 
+		System.out.println("made it here2");
+
+		
 		Message message = new Message(Constants.BITTORRENTPROTOCOL,
 				Constants.PEERID, torrentinfo);
 
@@ -197,7 +204,6 @@ public class Downloader extends BTClient implements Runnable{
 			return; 
 		}
 		
-		System.out.println("made it here");
 		
 		if(getdata() == false){
 			System.out.println("Error getting data");
@@ -214,4 +220,7 @@ public class Downloader extends BTClient implements Runnable{
 		currpeer.closeSocket(); 
 	
 	}
+	
+	
+
 }
