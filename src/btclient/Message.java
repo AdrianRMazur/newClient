@@ -4,6 +4,7 @@ public class Message {
 
 	public String urlstring; 
 	public byte [] toShake;  
+	public byte [] upload; 
 	
 	
 	public Message (TorrentInfo torrentinfo, byte [] peerid){
@@ -28,6 +29,10 @@ public class Message {
 		}
 		System.arraycopy(torrentinfo.info_hash.array(), 0, toShake, 28, 20);
 		System.arraycopy(Constants.PEERID, 0, toShake, 48, 10);
+		
+	}
+	public Message(int length,byte id, int begin, int index, byte [] block){
+		
 		
 	}
 	

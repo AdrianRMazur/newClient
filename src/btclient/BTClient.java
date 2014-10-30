@@ -25,8 +25,8 @@ public class BTClient {
 
 	public static TorrentInfo torrentinfo = null; 
 	public static ByteBuffer[] downloaded=null;
-	public static boolean [] startedDO = null; 
-	public static boolean [] completedDO = null; 
+	public static boolean [] startedDL = null; 
+	public static boolean [] completedDL = null; 
 	
 	
 	
@@ -260,6 +260,10 @@ public class BTClient {
 	    temp.putInt(x);
 	    temp.flip();
 	    return temp.array();
+	}
+	
+	public static boolean checkIfAvailable(int index){
+		return completedDL[index]; 
 	}
 	
 }

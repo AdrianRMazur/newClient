@@ -94,6 +94,7 @@ public class Peer extends BTClient implements Runnable {
 	
 	public boolean uploadToPeer() throws IOException{
 		byte[] fromShake=new byte[68];
+		byte [] block; 
 		datain.read(fromShake); 
 		int i; 
 		int index;
@@ -127,19 +128,26 @@ public class Peer extends BTClient implements Runnable {
 				index=datain.readInt();
 				begin=datain.readInt();
 				length=datain.readInt(); 
+				block=new byte[length]; 
 				
+				
+				if(this.checkIfAvailable(index)){
+					System.arraycopy(BTClient.downloaded, begin, block, 0, length);
+					Message piece = new Message(9+length, (byte)7,begin,id,block); 
+					dataout.write(piece.upload);
+					//Maybe add what has been already uploaded? like an array
+				}
 				
 			}
 			
 			
+			
 		}
-		
-		
-		
-		
-		
+			
 		
 	}
+	
+	
 
 
 // not sure about these methods
