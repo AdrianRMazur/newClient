@@ -1,6 +1,7 @@
 package btclient;
 
 import java.io.BufferedInputStream;
+import java.io.Console;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -20,6 +21,7 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Scanner;
 
 public class BTClient {
 
@@ -160,23 +162,26 @@ public class BTClient {
 			completedDL[i]=false; 
 		}
 		
-		for (int c = 0; c<peers.length; c++){
-			Downloader temp = new Downloader(peers[c]);
+		//for (int c = 0; c<peers.length; c++){
+		//	System.out.println(peers[c].getIP() + peers[c].getPort());
+			Downloader temp = new Downloader(peers[0]);
 			new Thread(temp).start();			
+	//	}
+	
+			String str = "no";
+		while(!(str.equals("Exit"))){
+			Scanner reader = new Scanner(System.in);
+			str = reader.next();
 		}
 		
+	//	for (int c=0; c< completedDL.length; c++){
 		
-		
-		for (int c=0; c< completedDL.length; c++){
-			
-			if (completedDL[c] == false){
+		//	if (completedDL[c] == false){
 
-				c=-1;
-				continue; 
-			}
-			
-			
-		}
+			//	c=-1;
+			//	continue; 
+			//}
+		//}
 		
 		
 		
@@ -189,11 +194,8 @@ public class BTClient {
 		
 		for (int c = 0; c < downloaded.length; c++) {
 			
-			
-			if (completedDL[c] == false){
-				c =-1; 
-				continue; 
-			}
+		
+		
 			try {
 				savefile.write(downloaded[c]);
 				
@@ -264,7 +266,7 @@ public class BTClient {
 			
 			e.printStackTrace();
 		} 
-		System.out.println("Error: A critical error occured");
+//		System.out.println("Error: A critical error occured");
 		System.exit(1);
 	}
 	

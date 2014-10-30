@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 public class Constants {
 
-	public final static byte[] PEERID = { 'k','o','s','t','i','a','n','d','a','d','r','i','a','n','@','$','@','@','$','@'};
+	public final static byte[] PEERID = { 'k','o','s','t','i','a','n','d','a','d','r','i','a','n','@','@','@','@','@','@'};
 	public final static byte [] BITTORRENTPROTOCOL = new byte [] {'B','i','t','T','o','r','r','e','n','t',' ','p','r','o','t','o','c','o','l'};
 	
 	

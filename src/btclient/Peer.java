@@ -25,12 +25,11 @@ public class Peer extends BTClient implements Runnable {
 
 	public Peer(Map<ByteBuffer,Object> peerinfo){
 		port = (Integer) peerinfo.get(Constants.PORT);
-		System.out.println(port);
-			try {
-				ip = new String ( ((ByteBuffer)peerinfo.get(Constants.IP)).array(), "ASCII" );
-			} catch (UnsupportedEncodingException e) {
-			}
-			System.out.println(ip);
+		
+		try {
+			ip = new String ( ((ByteBuffer)peerinfo.get(Constants.IP)).array(), "ASCII" );
+		} catch (UnsupportedEncodingException e) {}
+			
 
 	}
 	
@@ -49,10 +48,11 @@ public class Peer extends BTClient implements Runnable {
 			output = s.getOutputStream(); 
 			dataout= new DataOutputStream(output);
 			datain=new DataInputStream(input);
+			
 		} catch (IOException e){
 			// socket creation failed at this port 
 			// retuning false. try another peer to open socket. 
-			return false; 
+			e.printStackTrace();
 		}
 		return true; 
 	}
@@ -71,18 +71,25 @@ public class Peer extends BTClient implements Runnable {
 	public boolean shakeHands(Message message, TorrentInfo torrentinfo){
 		byte[] fromShake = new byte[67];
 		try {
+			ToolKit.print(message.toShake);
 			dataout.write(message.toShake);
 			dataout.flush();
+			
 			s.setSoTimeout(1000);
 		} catch (IOException e) {
-			// handshake sending failed 
+			
+
 			return false; 
 		}
 		
 		try {
-			while(datain.readByte()!=19);
-			datain.read(fromShake);
+			while(datain.readByte()!=(byte)19);
+			ToolKit.print(message.toShake);
+			datain.readFully(fromShake);
+			ToolKit.print(fromShake);
 		} catch (IOException e) {
+			System.out.println("made it through handshake fail");
+			
 			// handshake failed receiving something
 			return false; 
 		}
@@ -178,9 +185,14 @@ public class Peer extends BTClient implements Runnable {
 	}
 
 	
-	public void start(){
-		Thread t = new Thread ();
-		t.start(); 
+	public void run() {
+		try {
+			uploadToPeer();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		
 	}
 	
 	

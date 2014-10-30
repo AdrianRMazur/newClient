@@ -28,7 +28,7 @@ public class Message {
 			toShake[i]=(byte)0;
 		}
 		System.arraycopy(torrentinfo.info_hash.array(), 0, toShake, 28, 20);
-		System.arraycopy(Constants.PEERID, 0, toShake, 48, 10);
+		System.arraycopy(Constants.PEERID, 0, toShake, 48, 20);
 		
 	}
 	public Message(int length,byte id, int begin, int index, byte [] block){

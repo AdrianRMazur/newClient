@@ -63,6 +63,7 @@ public class Downloader extends BTClient implements Runnable{
 		int lastpiecelength= torrentinfo.file_length - (torrentinfo.piece_length * (torrentinfo.piece_hashes.length-1));
 		
 		for (int count = 0; count <downloaded.length; count++){
+			System.out.println(count);
 			int temp = 0; 
 			if (startedDL[count] == true){
 				continue; 
@@ -170,13 +171,14 @@ public class Downloader extends BTClient implements Runnable{
 	
 	
 	public void run(){
-	
-		if (currpeer.getIP().equals("128.6.171.131") || currpeer.getIP().equals("128.6.171.130")){
+		//System.out.println(currpeer.getIP() + " " + currpeer.getPort());
+		
+		if (!(currpeer.getIP().equals("128.6.171.131") || currpeer.getIP().equals("128.6.171.130"))){
 			// peer not required
 			return; 
 		}
+	
 		
-		System.out.println("made it here1");
 
 		
 		if (currpeer.openSocket() == false) {
@@ -185,8 +187,7 @@ public class Downloader extends BTClient implements Runnable{
 			return;
 		}
 
-		System.out.println("made it here2");
-
+	
 		
 		Message message = new Message(Constants.BITTORRENTPROTOCOL,
 				Constants.PEERID, torrentinfo);
@@ -196,6 +197,8 @@ public class Downloader extends BTClient implements Runnable{
 			// error message;
 			return;
 		}
+	
+		System.out.println("made it here2");
 
 	
 		if (unchokepeer() == false){
@@ -205,12 +208,15 @@ public class Downloader extends BTClient implements Runnable{
 		}
 		
 		
+		System.out.println("made it here3");
+		
 		if(getdata() == false){
 			System.out.println("Error getting data");
 			currpeer.closeSocket();
 			return; 
 		}
 		
+		System.out.println("made it here3");
 		if(getdata() == false){
 			System.out.println("Error getting data");
 			currpeer.closeSocket();
