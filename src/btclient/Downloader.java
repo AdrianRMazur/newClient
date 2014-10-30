@@ -192,24 +192,26 @@ public class Downloader extends BTClient implements Runnable{
 
 	
 		if (unchokepeer() == false){
-			// error print here
+			System.out.println("Error during unchoke");
 			currpeer.closeSocket();
 			return; 
 		}
 		
+		System.out.println("made it here");
 		
 		if(getdata() == false){
-			//error
+			System.out.println("Error getting data");
 			currpeer.closeSocket();
 			return; 
 		}
 		
 		if(getdata() == false){
-			//error
+			System.out.println("Error getting data");
 			currpeer.closeSocket();
 			return; 
 		}
 		
+		currpeer.closeSocket(); 
 	
 	}
 }

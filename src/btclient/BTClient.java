@@ -81,13 +81,18 @@ public class BTClient {
 		
 		byte [] serverreply = EstablishConnection();
 		if (serverreply == null){
-			
 			closer(); 
+			return; 
 		}
 		
 		if ( validatePeers(serverreply) == false){
-			closer(); 
+			closer();
+			return; 
 		}
+		
+		savetofile(); 
+		
+		closer();
 	}
 	
 	
@@ -146,9 +151,6 @@ public class BTClient {
 			peers[i]=new Peer( (Map<ByteBuffer, Object>)peerList.get(i)); 	
 		}
 		
-
-		
-		
 		downloaded = new byte [torrentinfo.piece_hashes.length][];
 		startedDL = new boolean [torrentinfo.piece_hashes.length];
 		completedDL = new boolean [torrentinfo.piece_hashes.length];
@@ -163,14 +165,18 @@ public class BTClient {
 			new Thread(temp).start();
 		}
 		
-		/*downloading from peers starts here, multi threading..... */
-		
-		//for(int i = 0;i<peerList.size();i++){
-			peerDownload(/*peers[0]*/);
-		//}
-		
-		
-		return false; 
+		return true; 
+	}
+	
+	private static void savetofile(){
+		for (int c = 0; c < downloaded.length; c++) {
+			try {
+				savefile.write(downloaded[c]);
+				
+			} catch (IOException e) {
+				// error
+			}
+		}
 	}
 	
 	public static void peerDownload(/*Peer peer*/) throws IOException, InterruptedException{
