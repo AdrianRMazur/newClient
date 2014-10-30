@@ -27,12 +27,13 @@ public class BTClient {
 
 	public static TorrentInfo torrentinfo = null; 
 	public static byte [] []downloaded=null;
+	public static byte [] [] downloaded2 = null; 
 	public static boolean [] startedDL = null; 
 	public static boolean [] completedDL = null; 
 	
 	
 	
-	private static FileOutputStream savefile = null;
+	public static FileOutputStream savefile = null;
 	private static DataInputStream input;
 	//private static boolean unChoke; 
 	private static int lastPieceLength; 
@@ -154,6 +155,7 @@ public class BTClient {
 		}
 		
 		downloaded = new byte [torrentinfo.piece_hashes.length][];
+		downloaded2 = new byte [torrentinfo.piece_hashes.length][];
 		startedDL = new boolean [torrentinfo.piece_hashes.length];
 		completedDL = new boolean [torrentinfo.piece_hashes.length];
 		
@@ -196,9 +198,9 @@ public class BTClient {
 	
 			try {
 				savefile.write(downloaded[c]);
-				
+				savefile.write(downloaded2[c]);
 			} catch (IOException e) {
-				// error
+				System.out.println("damm");// error
 			}
 		}
 	}

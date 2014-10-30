@@ -80,7 +80,8 @@ public class Downloader extends BTClient implements Runnable{
 				// normal pieces 
 				if (count < torrentinfo.piece_hashes.length-1){
 					if (temp==0){
-						downloaded[count] = new byte [torrentinfo.piece_length];
+						downloaded[count] = new byte [16384];
+						downloaded2[count] = new byte [16384];
 					}
 					System.arraycopy(toEndianArray(count), 0, msgrequest, 5, 4);
 					System.arraycopy(toEndianArray(temp), 0, msgrequest, 9, 4);
@@ -103,16 +104,30 @@ public class Downloader extends BTClient implements Runnable{
 						}
 					} 
 					
-								
-					for (int c = temp; c< 16384; c++){
-						try {
-							downloaded [count][c] = currpeer.receive().readByte();
-						} catch (IOException e) {
-							return false; 
+					if (temp == 0) {
+						for (int c = 0; c < 16384; c++) {
+							try {
+								downloaded[count][c] = currpeer.receive()
+										.readByte();
+							} catch (IOException e) {
+								return false;
+							}
+						}
+					}
+					else {
+						for (int c = 0; c < 16384; c++) {
+							try {
+								downloaded2[count][c] = currpeer.receive()
+										.readByte();
+							} catch (IOException e) {
+								return false;
+							}
 						}
 					}
 					
-					//savefile.write(peerresponse);
+			
+					
+	
 				
 					if (temp + 16384 == torrentinfo.piece_length)
 						break; 
@@ -130,7 +145,10 @@ public class Downloader extends BTClient implements Runnable{
 					
 					lastpiecelength = lastpiecelength - 16384;
 					if (temp==0 ){
-						downloaded[count] = new byte[size+lastpiecelength];
+						downloaded[count] = new byte[size];
+					}
+					else {
+						downloaded2[count] = new byte [size];
 					}
 					
 					System.arraycopy(toEndianArray(count), 0, msgrequest, 5, 4);
@@ -155,15 +173,28 @@ public class Downloader extends BTClient implements Runnable{
 						}
 					} 
 	
-					
-					for (int c = temp; c< size; c++){
-						try {
-							downloaded[count][c] = currpeer.receive().readByte();
-						} catch (IOException e) {
-							return false; 
+				
+					if (temp == 0) {
+						for (int c = 0; c < 16384; c++) {
+							try {
+								downloaded[count][c] = currpeer.receive()
+										.readByte();
+							} catch (IOException e) {
+								return false;
+							}
 						}
 					}
-				//	savefile.write(peerresponse);
+					else {
+						for (int c = 0; c < 16384; c++) {
+							try {
+								downloaded2[count][c] = currpeer.receive()
+										.readByte();
+							} catch (IOException e) {
+								return false;
+							}
+						}
+					}
+					
 					
 					if (lastpiecelength < 0 )
 						break; 
