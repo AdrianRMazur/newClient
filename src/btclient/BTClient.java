@@ -24,7 +24,7 @@ import java.util.Map;
 public class BTClient {
 
 	public static TorrentInfo torrentinfo = null; 
-	public static ByteBuffer[] downloaded=null;
+	public static byte [] []downloaded=null;
 	public static boolean [] startedDL = null; 
 	public static boolean [] completedDL = null; 
 	
@@ -35,7 +35,7 @@ public class BTClient {
 	private static boolean unChoke; 
 	private static int lastPieceLength; 
 	private static ArrayList <Peer> currentpeer; 
-	
+	private static ArrayList <Peer> goodpeers; 
 	
 	public static void main (String [] args) throws IOException, InterruptedException {
 		
@@ -146,27 +146,22 @@ public class BTClient {
 			peers[i]=new Peer( (Map<ByteBuffer, Object>)peerList.get(i)); 	
 		}
 		
+
 		
-		// tries to open socket. goes peer by peer until socket is opened 
-		for (int i=0; i<peerList.size(); i++){
-			if (peers[i].openSocket() == true){
-				currentpeer = peers[i];
-				break; 
-			}	
-			else if (peers[i].openSocket() == true){
-				currentpeer = peers[i]; 
-				break; 
-			}
-			if (i== peerList.size()-1){
-				// ran out of peers to check 
-				//**************************************************************************
-				// *************************** ADRIAN CODE HERE ERROR AND QUIT ***********************
-				//***************************************************************************
-			}
+		
+		downloaded = new byte [torrentinfo.piece_hashes.length][];
+		startedDL = new boolean [torrentinfo.piece_hashes.length];
+		completedDL = new boolean [torrentinfo.piece_hashes.length];
+		
+		for (int i = 0; i < startedDL.length; i++) {
+			startedDL[i] = false; 
+			completedDL[i]=false; 
 		}
 		
-		
-		
+		for (int c = 0; c<peers.length; c++){
+			Downloader temp = new Downloader(peers[c]);
+			new Thread(temp).start();
+		}
 		
 		/*downloading from peers starts here, multi threading..... */
 		
@@ -183,40 +178,42 @@ public class BTClient {
 			
 		
 		Message message= new Message (Constants.BITTORRENTPROTOCOL,Constants.PEERID, torrentinfo); 
-		if (currentpeer.shakeHands(message, torrentinfo) == false){
-			// handshake failed
-			//**************************************************************************
-			// *************************** ADRIAN CODE HERE ERROR AND QUIT***********************
-			//***************************************************************************
-			closer(); 
-		};
+		for (int c =0; c< currentpeer.size(); c++){
+			if (currentpeer.get(c).shakeHands(message, torrentinfo) == true){
+				goodpeers.add(currentpeer.get(c));
+			};
+		}	
 		unChoke=false; 
 		lastPieceLength= torrentinfo.file_length - (torrentinfo.piece_length * (torrentinfo.piece_hashes.length-1));
 		byte str; 
 		
 	
-		while(unChoke==false){
-			byte [] interested = new byte [5];	
-			System.arraycopy(toEndianArray(1), 0, interested, 0, 4);
-			interested[4] = (byte) 2;
-			currentpeer.send().write(interested);
-			currentpeer.send().flush(); 
-			currentpeer.modifysocket().setSoTimeout(1300000);
-			
-			for (int c = 0; c<5; c++){
-				if (c==4){
-					str=currentpeer.receive().readByte();
-					System.out.println(str);
-					if (str ==1){
-						unChoke = true; 
-						break; 
+		for (int c = 0; c < currentpeer.size(); c++) {
+			while (unChoke == false) {
+				byte[] interested = new byte[5];
+				System.arraycopy(toEndianArray(1), 0, interested, 0, 4);
+				interested[4] = (byte) 2;
+				currentpeer.get(c).send().write(interested);
+				currentpeer.get(c).send().flush();
+				currentpeer.get(c).modifysocket().setSoTimeout(1300000);
+
+				for (int c2 = 0; c < 5; c++) {
+					if (c2 == 4) {
+						str = currentpeer.get(c).receive().readByte();
+						System.out.println(str);
+						if (str == 1) {
+							unChoke = true;
+							break;
+						}
 					}
+					currentpeer.get(c).receive().readByte();
 				}
-				currentpeer.receive().readByte();
 			}
 		}
 		
-		currentpeer.closeSocket();
+		for (int c = 0; c < currentpeer.size(); c++) {
+			currentpeer.get(c).closeSocket();
+		}
 	}
 	
 	public void peerUpload(Peer peer){
