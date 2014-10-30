@@ -32,7 +32,7 @@ public class BTClient {
 	
 	private static FileOutputStream savefile = null;
 	private static DataInputStream input;
-	private static boolean unChoke; 
+	//private static boolean unChoke; 
 	private static int lastPieceLength; 
 	private static ArrayList <Peer> currentpeer; 
 	private static ArrayList <Peer> goodpeers; 
@@ -175,7 +175,7 @@ public class BTClient {
 	
 	public static void peerDownload(/*Peer peer*/) throws IOException, InterruptedException{
 		
-			
+	/*		
 		
 		Message message= new Message (Constants.BITTORRENTPROTOCOL,Constants.PEERID, torrentinfo); 
 		for (int c =0; c< currentpeer.size(); c++){
@@ -183,6 +183,7 @@ public class BTClient {
 				goodpeers.add(currentpeer.get(c));
 			};
 		}	
+	
 		unChoke=false; 
 		lastPieceLength= torrentinfo.file_length - (torrentinfo.piece_length * (torrentinfo.piece_hashes.length-1));
 		byte str; 
@@ -213,7 +214,7 @@ public class BTClient {
 		
 		for (int c = 0; c < currentpeer.size(); c++) {
 			currentpeer.get(c).closeSocket();
-		}
+		} */
 	}
 	
 	public void peerUpload(Peer peer){
