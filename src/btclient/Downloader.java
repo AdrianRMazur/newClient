@@ -191,7 +191,6 @@ public class Downloader extends BTClient implements Runnable{
 		//System.out.println(currpeer.getIP() + " " + currpeer.getPort());
 		
 		if (!(currpeer.getIP().equals("128.6.171.131") || currpeer.getIP().equals("128.6.171.130"))){
-			// peer not required
 			return; 
 		}
 	
@@ -199,8 +198,8 @@ public class Downloader extends BTClient implements Runnable{
 
 		
 		if (currpeer.openSocket() == false) {
-			System.out.println("333");
-			// connection failed on socket creation;
+			System.out.println("Opening the socket failed.");
+// connection failed on socket creation;
 			return;
 		}
 
@@ -233,7 +232,7 @@ public class Downloader extends BTClient implements Runnable{
 			return; 
 		}
 		
-		System.out.println("made it here3");
+		System.out.println("made it here4");
 		if(getdata() == false){
 			System.out.println("Error getting data");
 			currpeer.closeSocket();
