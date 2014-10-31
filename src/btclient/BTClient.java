@@ -198,7 +198,7 @@ public class BTClient {
 	
 			try {
 				savefile.write(downloaded[c]);
-				savefile.write(downloaded2[c]);
+			//	savefile.write(downloaded2[c]);
 			} catch (IOException e) {
 				System.out.println("damm");// error
 			}
