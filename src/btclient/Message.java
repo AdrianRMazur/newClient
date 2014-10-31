@@ -13,7 +13,7 @@ public class Message {
 		infohash = buildstring(torrentinfo, x);
 		x = peerid.length;	
 		peeridstring = buildstring(torrentinfo, x);
-		urlstring = torrentinfo.announce_url.toString() + "?info_hash=" + infohash + "&peer_id="+Constants.PEER_ID + "&port=6881&uploaded="+BTClient.u+"&downloaded="+BTClient.d+"&left=" +(torrentinfo.file_length-BTClient.d)+ "&event=started"  ;
+		urlstring = torrentinfo.announce_url.toString() + "?info_hash=" + infohash + "&peer_id="+Constants.PEER_ID + "&port="+Constants.OUR_PORT+"&uploaded="+BTClient.u+"&downloaded="+BTClient.d+"&left=" +(torrentinfo.file_length-BTClient.d)+ "&event=started"  ;
 		System.out.println("URLSTRING: "+urlstring);
 	}
 	

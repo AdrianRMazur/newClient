@@ -84,7 +84,8 @@ public class BTClient {
 		}
 		
 		Uploader upload=new Uploader(); 
-		new Thread (upload).start(); 
+		Thread t= new Thread (upload);
+		t.start();
 		
 		
 		

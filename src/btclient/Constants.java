@@ -19,7 +19,9 @@ public class Constants {
 	public final static String OK_PEER1 = "128.6.171.130";
 	public final static String OK_PEER2 = "128.6.171.131";
 	
+	public final static byte INTERESTED_ID = 2; 
 	public final static byte HAVE_ID = 4; 
 	public final static byte REQUEST_ID = 6; 
 	
+	public final static int OUR_PORT = 6666; 
 }

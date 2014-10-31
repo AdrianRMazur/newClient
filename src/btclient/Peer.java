@@ -114,24 +114,33 @@ public class Peer extends BTClient implements Runnable {
 		int begin;
 		int length;
 		
-		for(i=0; i<68; i++){
-			if(fromShake[i]!=(byte)19){
-				System.out.println("The connecting host is not Bit Torrent");
-				return false; 
-			}
-		}
+		System.out.println("From peer handshake: ");
+		ToolKit.print(fromShake);
+		
 		//return back to them, but with our part of the handshake
 		Message message = new Message(Constants.BITTORRENTPROTOCOL, Constants.PEERID,BTClient.torrentinfo); 
 		dataout.write(message.toShake);
 		dataout.flush();
 		
 		/*Start reading the bytes sent to us*/
+		/*have to code to start choking when cannot keep up*/
 		for(;;){
+			
 			int prefix= datain.readInt(); //Length-prefix
+			System.out.println("datain prefix: " + prefix);
 			if(prefix==0){
 				continue; 
 			}
 			byte id=datain .readByte();//message ID
+			System.out.println("id: "+id);
+
+			if(id==Constants.INTERESTED_ID){//Interested, return interest 
+			//	System.out.println("Here");
+				byte[] unChoke=new byte[5]; 
+				System.arraycopy(BTClient.toEndianArray(1), 0, unChoke, 0, 4);
+				unChoke[4]= (byte)1; 
+				dataout.write(unChoke);
+			}
 			
 			if(id==Constants.HAVE_ID){ //Have 
 				datain.readInt();
@@ -141,14 +150,41 @@ public class Peer extends BTClient implements Runnable {
 				index=datain.readInt();
 				begin=datain.readInt();
 				length=datain.readInt(); 
-				block=new byte[length]; 
+				block=new byte[length]; //maybe -1 
 				
 				
 				if(this.checkIfAvailable(index)){
-					System.arraycopy(BTClient.downloaded, begin, block, 0, length);
+					BTClient.u=u+length; 
+					System.out.println("Index: "+ index+ " begin: "+begin+" length: "+ length );
+					System.arraycopy(BTClient.downloaded[index], begin, block, 0, length);
+					//block=BTClient.downloaded[index];
+					if(begin==435){
+						begin=16384;
+					}
+					
 					Message piece = new Message(9+length, (byte)7,begin,id,block); 
+					
 					dataout.write(piece.upload);
 					//Maybe add what has been already uploaded? like an array
+				}
+				else{/*Give time to catch up!!!*/
+					try {
+						Thread.sleep(5000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					BTClient.u=u+length; 
+					System.out.println("Index: "+ index+ " begin: "+begin+" length: "+ length );
+					System.arraycopy(BTClient.downloaded[index], begin, block, 0, length);
+					if(begin==435){
+						begin=16384;
+					}
+					
+					Message piece = new Message(9+length, (byte)7,begin,id,block); 
+					
+					dataout.write(piece.upload);
+					
 				}
 				
 			}
