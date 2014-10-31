@@ -124,7 +124,7 @@ public class Peer extends BTClient implements Runnable {
 		
 		/*Start reading the bytes sent to us*/
 		/*have to code to start choking when cannot keep up*/
-		for(;;){
+		for(int j=0;j<torrentinfo.piece_hashes.length*2+1;j++){/*limit this, so we dont get EOF*/
 			
 			int prefix= datain.readInt(); //Length-prefix
 			System.out.println("datain prefix: " + prefix);
@@ -150,8 +150,11 @@ public class Peer extends BTClient implements Runnable {
 				index=datain.readInt();
 				begin=datain.readInt();
 				length=datain.readInt(); 
-				block=new byte[length]; //maybe -1 
+				block=new byte[length]; //
 				
+				/*if(begin==435){
+					begin=16384;
+				}*/
 				
 				if(this.checkIfAvailable(index)){
 					BTClient.u=u+length; 
@@ -162,14 +165,14 @@ public class Peer extends BTClient implements Runnable {
 						begin=16384;
 					}
 					
-					Message piece = new Message(9+length, (byte)7,begin,id,block); 
+					Message piece = new Message(9+length, (byte)7,begin,id,block); //maybe one bit off here???
 					
 					dataout.write(piece.upload);
 					//Maybe add what has been already uploaded? like an array
 				}
 				else{/*Give time to catch up!!!*/
 					try {
-						Thread.sleep(5000);
+						Thread.sleep(9000);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -187,11 +190,19 @@ public class Peer extends BTClient implements Runnable {
 					
 				}
 				
+				
 			}
 			
-			
+		
 			
 		}
+		try {
+			Thread.sleep(9000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
 			
 		
 	}
