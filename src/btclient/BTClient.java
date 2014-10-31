@@ -31,7 +31,8 @@ public class BTClient {
 	public static boolean [] startedDL = null; 
 	public static boolean [] completedDL = null; 
 	
-	
+	public static int d=0;
+	public static int u=0; 
 	
 	public static FileOutputStream savefile = null;
 	private static DataInputStream input;
@@ -81,6 +82,11 @@ public class BTClient {
 			e.printStackTrace();
 			closer(); 
 		}
+		
+		Uploader upload=new Uploader(); 
+		new Thread (upload).start(); 
+		
+		
 		
 		byte [] serverreply = EstablishConnection();
 		if (serverreply == null){

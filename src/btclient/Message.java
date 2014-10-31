@@ -12,8 +12,9 @@ public class Message {
 		int x = torrentinfo.info_hash.array().length; 
 		infohash = buildstring(torrentinfo, x);
 		x = peerid.length;	
-		peeridstring = buildstring(torrentinfo, x); /*peerid should be our peerid VV changed bellow*/
-		urlstring = torrentinfo.announce_url.toString() + "?info_hash=" + infohash + "&peer_id="+Constants.PEERID + "&port=6885&uploaded=0&downloaded=0&left=" +torrentinfo.file_length ;
+		peeridstring = buildstring(torrentinfo, x);
+		urlstring = torrentinfo.announce_url.toString() + "?info_hash=" + infohash + "&peer_id="+Constants.PEER_ID + "&port=6881&uploaded="+BTClient.u+"&downloaded="+BTClient.d+"&left=" +(torrentinfo.file_length-BTClient.d)+ "&event=started"  ;
+		System.out.println("URLSTRING: "+urlstring);
 	}
 	
 	
@@ -32,6 +33,13 @@ public class Message {
 		
 	}
 	public Message(int length,byte id, int begin, int index, byte [] block){
+		/*Length prefix + message ID*/
+		upload= new byte[length+4];
+		System.arraycopy(BTClient.toEndianArray(length), 0, upload, 0, 4);
+		upload[4]=(byte)7;
+		
+		/*Tough part..... payload*/
+		
 		
 		
 	}

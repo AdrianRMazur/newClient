@@ -6,7 +6,7 @@ import java.net.Socket;
 
 public class Uploader implements Runnable {
 
-	int port= 5926;
+	int port= 6881 ;
 	ServerSocket serverSide; 
 	
 	public Uploader() throws IOException{
