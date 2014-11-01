@@ -15,13 +15,13 @@ import java.util.Map;
 
 
 public class Downloader extends BTClient implements Runnable{ 
-	private static  int port;
-	private static String ip = null;
-	private static Socket s; 
-	private static InputStream input; 
-	private static OutputStream output; 
-	private static DataOutputStream dataout; 
-	private static DataInputStream datain; 
+	public   int port;
+	public  String ip = null;
+	private  Socket s; 
+	private  InputStream input; 
+	private  OutputStream output; 
+	private  DataOutputStream dataout; 
+	private  DataInputStream datain; 
 
 	
 	
@@ -113,15 +113,15 @@ public class Downloader extends BTClient implements Runnable{
 		return s; 
 	}
 
-	public int getPort(){
+	private int getPort(){
 		return port; 
 	}
 
-	public String getIP(){
+	private String getIP(){
 		return ip; 
 	}
 	
-	private static boolean unchokepeer(){
+	private  boolean unchokepeer(){
 		boolean unChoke = false;
 		
 		unChoke = false;
@@ -136,7 +136,7 @@ public class Downloader extends BTClient implements Runnable{
 			try {
 				dataout.write(interested);
 				dataout.flush();
-				currpeer.modifysocket().setSoTimeout(1300000);
+				s.setSoTimeout(1300000);
 			} catch (IOException e) {
 				return false; 
 			}
@@ -145,7 +145,7 @@ public class Downloader extends BTClient implements Runnable{
 			for (int c = 0; c < 5; c++) {
 				if (c == 4) {
 					try {
-						str = currpeer.receive().readByte();
+						str = datain.readByte();
 						if (str == 1) {
 							unChoke = true;
 							break;
@@ -155,7 +155,7 @@ public class Downloader extends BTClient implements Runnable{
 					}
 				}
 				try {
-					currpeer.receive().readByte();
+					datain.readByte();
 				} catch (IOException e) {
 					return false ; 
 				}
@@ -165,7 +165,7 @@ public class Downloader extends BTClient implements Runnable{
 	}
 	
 	
-	private static boolean getdata(){
+	private  boolean getdata(){
 		 
 		int lastpiecelength= torrentinfo.file_length - (torrentinfo.piece_length * (torrentinfo.piece_hashes.length-1));
 		System.out.println(lastpiecelength);
@@ -195,9 +195,9 @@ public class Downloader extends BTClient implements Runnable{
 					System.arraycopy(toEndianArray(16384), 0, msgrequest, 13, 4);
 					
 					try {
-						currpeer.send().write(msgrequest);
-						currpeer.send().flush();
-						currpeer.modifysocket().setSoTimeout(130000);
+						dataout.write(msgrequest);
+						dataout.flush();
+						s.setSoTimeout(130000);
 					} catch (IOException e) {
 						return false; 
 					}
@@ -205,7 +205,7 @@ public class Downloader extends BTClient implements Runnable{
 					
 					for (int i = 0; i < 13; i++) {
 						try {
-							currpeer.receive().readByte();
+							datain.readByte();
 						} catch (IOException e) {
 							return false; 
 						}
@@ -213,7 +213,7 @@ public class Downloader extends BTClient implements Runnable{
 					
 					for (int c = temp; c< 16384+temp; c++){
 						try {
-							downloaded [count][c] = currpeer.receive().readByte();
+							downloaded [count][c] = datain.readByte();
 						} catch (IOException e) {
 							return false; 
 						}
@@ -254,9 +254,9 @@ public class Downloader extends BTClient implements Runnable{
 					System.arraycopy(toEndianArray(size), 0, msgrequest, 13, 4);
 					
 					try {
-						currpeer.send().write(msgrequest);
-						currpeer.send().flush(); 
-						currpeer.modifysocket().setSoTimeout(1000);
+						dataout.write(msgrequest);
+						dataout.flush(); 
+						s.setSoTimeout(1000);
 					} catch (IOException e) {
 						
 						return false; 
@@ -265,7 +265,7 @@ public class Downloader extends BTClient implements Runnable{
 					
 					for (int i = 0; i < 13; i++) {
 						try {
-							currpeer.receive().readByte();
+							datain.readByte();
 						} catch (IOException e) {
 							return false; 
 						}
@@ -274,7 +274,7 @@ public class Downloader extends BTClient implements Runnable{
 					
 					for (int c = temp; c< size+temp; c++){
 						try {
-							downloaded[count][c] = currpeer.receive().readByte();
+							downloaded[count][c] = datain.readByte();
 						} catch (IOException e) {
 							return false; 
 						}
@@ -297,27 +297,27 @@ public class Downloader extends BTClient implements Runnable{
 	public void run(){
 		//System.out.println(currpeer.getIP() + " " + currpeer.getPort());
 		
-		if (!(currpeer.getIP().equals("128.6.171.131") || currpeer.getIP().equals("128.6.171.130"))){
+		if (!(getIP().equals("128.6.171.131") || getIP().equals("128.6.171.130"))){
 			return; 
 		}
 	
 		
 
 		
-		if (currpeer.openSocket() == false) {
+		if (openSocket() == false) {
 			System.out.println("Opening the socket failed.");
 // connection failed on socket creation;
 			return;
 		}
 
-	System.out.println(currpeer.getIP() + " " + currpeer.getPort());
+	System.out.println(getIP() + " " + getPort());
 	System.out.println("***********************");
 		
 		Message message = new Message(Constants.BITTORRENTPROTOCOL,
 				Constants.PEERID, torrentinfo);
 
-		if (currpeer.shakeHands(message, torrentinfo) == false) {
-			currpeer.closeSocket(); 
+		if (shakeHands(message, torrentinfo) == false) {
+			closeSocket(); 
 			// error message;
 			return;
 		}
@@ -327,7 +327,7 @@ public class Downloader extends BTClient implements Runnable{
 	
 		if (unchokepeer() == false){
 			System.out.println("Error during unchoke");
-			currpeer.closeSocket();
+			closeSocket();
 			return; 
 		}
 		
@@ -336,18 +336,18 @@ public class Downloader extends BTClient implements Runnable{
 		
 		if(getdata() == false){
 			System.out.println("Error getting data");
-			currpeer.closeSocket();
+			closeSocket();
 			return; 
 		}
 		
 		System.out.println("made it here4");
 		if(getdata() == false){
 			System.out.println("Error getting data");
-			currpeer.closeSocket();
+			closeSocket();
 			return; 
 		}
 		
-		currpeer.closeSocket(); 
+		closeSocket(); 
 	
 	}
 	

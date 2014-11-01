@@ -154,11 +154,12 @@ public class BTClient implements Cloneable {
 		ArrayList peerList = (ArrayList)obj.get(Constants.PEERS);
 		//System.out.println(peerList.size());
 		//ToolKit.print(obj);
-		Peer[] peers = new Peer[peerList.size()];
+		Downloader[] peers = new Downloader[peerList.size()];
 
 		for(int i=0;i<peerList.size();i++){
 
-			peers[i]=new Peer( (Map<ByteBuffer, Object>)peerList.get(i)); 	
+			peers[i]=new Downloader( (Map<ByteBuffer, Object>)peerList.get(i));
+			
 		}
 		
 		downloaded = new byte [torrentinfo.piece_hashes.length][];
@@ -173,29 +174,22 @@ public class BTClient implements Cloneable {
 		
 		
 	//	Thread [] threads = new Thread[peers.length];
-		Thread cat, dog;
-		Peer peer1, peer2; 
-		peer1 = new Peer( (Map<ByteBuffer, Object>)peerList.get(0));
-		peer2 = new Peer( (Map<ByteBuffer, Object>)peerList.get(1));
-		Downloader temp1 =null, temp2 = null; 
+	//	Thread cat, dog;
 		
-			temp1 = new Downloader(peer1);
-			temp2 = new Downloader(peer2);
-
 		
 		//threads[0] = new Thread(temp[0]);
 		//threads[1] = new Thread(temp[1]);
 		//threads[0].start();
 		//threads[1].start();
-		cat = new Thread(temp1);
-		System.out.println(temp1.currpeer.getIP() + " current " + temp1.currpeer.getPort());
-		cat.start(); 
-		cat.join();
+		//cat = new Thread(peers[0]);
+		//dog = new Thread(peers[1]);
+		//cat.start(); 
+		//cat.join();
 		//dog = new Thread(temp2);
 		 
 		//dog.start();
-		for (int c = 0; c<2; c++){
-			System.out.println(peers[c].getIP() + "    yufsdsdsdf " + peers[c].getPort());
+		for (int c = 0; c<peerList.size(); c++){
+			System.out.println(peers[c].ip + "    yufsdsdsdf " + peers[c].port);
 			//temp[c] = new Downloader(peers[c]);
 			
 			//threads[c] = new Thread(temp[c]);	
