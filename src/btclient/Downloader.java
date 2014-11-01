@@ -1,17 +1,124 @@
 package btclient;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Map;
+
 
 
 public class Downloader extends BTClient implements Runnable{ 
+	private static  int port;
+	private static String ip = null;
+	private static Socket s; 
+	private static InputStream input; 
+	private static OutputStream output; 
+	private static DataOutputStream dataout; 
+	private static DataInputStream datain; 
+
 	
-	private static Peer currpeer; 
 	
-	
-	public Downloader(Peer peer) {
+	public Downloader(Map<ByteBuffer,Object> peerinfo) {
 		
-		currpeer = peer; 
+		port = (Integer) peerinfo.get(Constants.PORT);
+		
+		try {
+			ip = new String ( ((ByteBuffer)peerinfo.get(Constants.IP)).array(), "ASCII" );
+		} catch (UnsupportedEncodingException e) {}
+	}
+	
+	private boolean openSocket(){
+		try {
+			s = new Socket (ip, port);
+			input= s.getInputStream();
+			output = s.getOutputStream(); 
+			dataout= new DataOutputStream(output);
+			datain=new DataInputStream(input);
+			
+		} catch (IOException e){
+			// socket creation failed at this port 
+			// retuning false. try another peer to open socket. 
+			e.printStackTrace();
+		}
+		return true; 
+	}
+
+	private  void closeSocket(){
+		try {
+			s.close();
+			input.close(); 
+			output.close();
+			datain.close();
+			dataout.close();
+		} catch (IOException e){}
+	}
+
+
+	private  boolean shakeHands(Message message, TorrentInfo torrentinfo){
+		byte[] fromShake = new byte[67];
+		try {
+			ToolKit.print(message.toShake);
+			dataout.write(message.toShake);
+			dataout.flush();
+			
+			s.setSoTimeout(1000);
+		} catch (IOException e) {
+			
+
+			return false; 
+		}
+		
+		try {
+			while(datain.readByte()!=(byte)19);
+			ToolKit.print(message.toShake);
+			datain.readFully(fromShake);
+			ToolKit.print(fromShake);
+		} catch (IOException e) {
+			System.out.println("made it through handshake fail");
+			
+			// handshake failed receiving something
+			return false; 
+		}
+
+		byte[] infohashpart = Arrays.copyOfRange(fromShake, 27, 47);
+
+		if (Arrays.equals(infohashpart, torrentinfo.info_hash.array()) == false){
+			return false; 
+		}
+		
+
+
+		return true; 
+	}
+
+
+
+	//not sure about these methods
+	private DataInputStream receive (){
+		return datain;
+	}
+
+	private DataOutputStream send (){
+		return dataout; 
+	}
+
+	private Socket modifysocket(){
+		return s; 
+	}
+
+	public int getPort(){
+		return port; 
+	}
+
+	public String getIP(){
+		return ip; 
 	}
 	
 	private static boolean unchokepeer(){
@@ -27,8 +134,8 @@ public class Downloader extends BTClient implements Runnable{
 			System.arraycopy(toEndianArray(1), 0, interested, 0, 4);
 			interested[4] = (byte) 2;
 			try {
-				currpeer.send().write(interested);
-				currpeer.send().flush();
+				dataout.write(interested);
+				dataout.flush();
 				currpeer.modifysocket().setSoTimeout(1300000);
 			} catch (IOException e) {
 				return false; 
@@ -203,7 +310,8 @@ public class Downloader extends BTClient implements Runnable{
 			return;
 		}
 
-	
+	System.out.println(currpeer.getIP() + " " + currpeer.getPort());
+	System.out.println("***********************");
 		
 		Message message = new Message(Constants.BITTORRENTPROTOCOL,
 				Constants.PEERID, torrentinfo);
@@ -242,6 +350,8 @@ public class Downloader extends BTClient implements Runnable{
 		currpeer.closeSocket(); 
 	
 	}
+	
+
 	
 	
 

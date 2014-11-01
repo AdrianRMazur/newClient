@@ -33,6 +33,15 @@ public class Peer extends BTClient implements Runnable {
 
 	}
 	
+	
+	public Object clone2(){  
+	    try{  
+	        return super.clone();  
+	    }catch(Exception e){ 
+	        return null; 
+	    }
+	}
+	
 	public Peer(Socket con) throws IOException{
 		output=con.getOutputStream();
 		input=con.getInputStream();

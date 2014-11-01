@@ -23,7 +23,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Scanner;
 
-public class BTClient {
+public class BTClient implements Cloneable {
 
 	public static TorrentInfo torrentinfo = null; 
 	public static byte [] []downloaded=null;
@@ -85,7 +85,7 @@ public class BTClient {
 		
 		Uploader upload=new Uploader(); 
 		Thread t= new Thread (upload);
-		t.start();
+		//t.start();
 		
 		
 		
@@ -171,27 +171,50 @@ public class BTClient {
 			completedDL[i]=false; 
 		}
 		
-		//for (int c = 0; c<peers.length; c++){
-		//	System.out.println(peers[c].getIP() + peers[c].getPort());
-			Downloader temp = new Downloader(peers[0]);
-			new Thread(temp).start();			
-	//	}
+		
+	//	Thread [] threads = new Thread[peers.length];
+		Thread cat, dog;
+		Peer peer1, peer2; 
+		peer1 = new Peer( (Map<ByteBuffer, Object>)peerList.get(0));
+		peer2 = new Peer( (Map<ByteBuffer, Object>)peerList.get(1));
+		Downloader temp1 =null, temp2 = null; 
+		
+			temp1 = new Downloader(peer1);
+			temp2 = new Downloader(peer2);
+
+		
+		//threads[0] = new Thread(temp[0]);
+		//threads[1] = new Thread(temp[1]);
+		//threads[0].start();
+		//threads[1].start();
+		cat = new Thread(temp1);
+		System.out.println(temp1.currpeer.getIP() + " current " + temp1.currpeer.getPort());
+		cat.start(); 
+		cat.join();
+		//dog = new Thread(temp2);
+		 
+		//dog.start();
+		for (int c = 0; c<2; c++){
+			System.out.println(peers[c].getIP() + "    yufsdsdsdf " + peers[c].getPort());
+			//temp[c] = new Downloader(peers[c]);
+			
+			//threads[c] = new Thread(temp[c]);	
+			//threads[c].start();
+		}
 	
-			String str = "no";
+	
+		
+		for (int c = 0; c<2; c++){
+		//	threads[c].join();
+			//threads[c].start();
+			
+		}
+	/* str = "no";
 		while(!(str.equals("Exit"))){
 			Scanner reader = new Scanner(System.in);
 			str = reader.next();
 		}
-		
-	//	for (int c=0; c< completedDL.length; c++){
-		
-		//	if (completedDL[c] == false){
-
-			//	c=-1;
-			//	continue; 
-			//}
-		//}
-		
+*/
 		
 		
 		return true; 
