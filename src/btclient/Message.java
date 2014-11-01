@@ -39,7 +39,9 @@ public class Message {
 		upload[4]=(byte)7;
 		
 		/*Tough part..... payload*/
-		
+		System.arraycopy(BTClient.toEndianArray(index), 0, upload, 5, 4); 
+		System.arraycopy(BTClient.toEndianArray(begin), 0, upload, 9, 4);
+		System.arraycopy(block, 0, upload, 13, length-9); 
 		
 		
 	}
