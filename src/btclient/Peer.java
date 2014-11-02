@@ -25,7 +25,6 @@ public class Peer extends BTClient implements Runnable {
 
 	public Peer(Map<ByteBuffer,Object> peerinfo){
 		port = (Integer) peerinfo.get(Constants.PORT);
-		
 		try {
 			ip = new String ( ((ByteBuffer)peerinfo.get(Constants.IP)).array(), "ASCII" );
 		} catch (UnsupportedEncodingException e) {}
@@ -33,14 +32,6 @@ public class Peer extends BTClient implements Runnable {
 
 	}
 	
-	
-	public Object clone2(){  
-	    try{  
-	        return super.clone();  
-	    }catch(Exception e){ 
-	        return null; 
-	    }
-	}
 	
 	public Peer(Socket con) throws IOException{
 		output=con.getOutputStream();
@@ -50,67 +41,7 @@ public class Peer extends BTClient implements Runnable {
 		
 	}
 	
-	public boolean openSocket(){
-		try {
-			s = new Socket (ip, port);
-			input= s.getInputStream();
-			output = s.getOutputStream(); 
-			dataout= new DataOutputStream(output);
-			datain=new DataInputStream(input);
-			
-		} catch (IOException e){
-			// socket creation failed at this port 
-			// retuning false. try another peer to open socket. 
-			e.printStackTrace();
-		}
-		return true; 
-	}
-
-	public void closeSocket(){
-		try {
-			s.close();
-			input.close(); 
-			output.close();
-			datain.close();
-			dataout.close();
-		} catch (IOException e){}
-	}
-
-
-	public boolean shakeHands(Message message, TorrentInfo torrentinfo){
-		byte[] fromShake = new byte[67];
-		try {
-			ToolKit.print(message.toShake);
-			dataout.write(message.toShake);
-			dataout.flush();
-			
-			s.setSoTimeout(1000);
-		} catch (IOException e) {
-			
-
-			return false; 
-		}
-		
-		try {
-			while(datain.readByte()!=(byte)19);
-			ToolKit.print(message.toShake);
-			datain.readFully(fromShake);
-			ToolKit.print(fromShake);
-		} catch (IOException e) {			
-			// handshake failed receiving something
-			return false; 
-		}
-
-		byte[] infohashpart = Arrays.copyOfRange(fromShake, 27, 47);
-
-		if (Arrays.equals(infohashpart, torrentinfo.info_hash.array()) == false){
-			return false; 
-		}
-		
-
-
-		return true; 
-	}
+	
 	
 	public boolean uploadToPeer() {
 		byte[] fromShake=new byte[68];
@@ -134,7 +65,7 @@ public class Peer extends BTClient implements Runnable {
 			dataout.write(message.toShake);
 			dataout.flush();
 		} catch (IOException e1) {
-			e1.printStackTrace();
+			
 			return false;
 		}
 		
@@ -147,7 +78,7 @@ public class Peer extends BTClient implements Runnable {
 			try {
 				prefix = datain.readInt();
 			} catch (IOException e1) {
-				e1.printStackTrace();
+				
 				return false;
 			} //Length-prefix
 			/*System.out.println("datain prefix: " + prefix);*/
@@ -158,7 +89,7 @@ public class Peer extends BTClient implements Runnable {
 			try {
 				id = datain.readByte();
 			} catch (IOException e1) {
-				e1.printStackTrace();
+				
 				return false;
 			}//message ID
 		/*	System.out.println("id: "+id);*/
@@ -171,7 +102,7 @@ public class Peer extends BTClient implements Runnable {
 				try {
 					dataout.write(unChoke);
 				} catch (IOException e) {
-					e.printStackTrace();
+					
 					return false;
 				}
 			}
@@ -180,7 +111,7 @@ public class Peer extends BTClient implements Runnable {
 				try {
 					datain.readInt();
 				} catch (IOException e) {
-					e.printStackTrace();
+					
 					return false;
 				}
 				continue; 
@@ -191,7 +122,7 @@ public class Peer extends BTClient implements Runnable {
 					begin=datain.readInt();
 					length=datain.readInt(); 
 				} catch (IOException e1) {
-					e1.printStackTrace();
+				
 					return false; 
 				}
 
@@ -215,7 +146,7 @@ public class Peer extends BTClient implements Runnable {
 					try {
 						dataout.write(piece.upload);
 					} catch (IOException e) {
-						e.printStackTrace();
+						
 						return false; 
 					}
 					//Maybe add what has been already uploaded? like an array
@@ -223,10 +154,7 @@ public class Peer extends BTClient implements Runnable {
 				else{/*Give time to catch up!!!*/
 					try {
 						Thread.sleep(9000);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					} catch (InterruptedException e) {	}
 					BTClient.u=u+length; 
 					System.out.println("Index: "+ index+ " begin: "+begin+" length: "+ length );
 					System.arraycopy(BTClient.downloaded[index], begin, block, 0, length);
@@ -239,22 +167,16 @@ public class Peer extends BTClient implements Runnable {
 					try {
 						dataout.write(piece.upload);
 					} catch (IOException e) {
-						e.printStackTrace();
+						
 						return false; 
 					}
 					
 				}
-				
-				
 			}
-			
-		
-			
 		}
 		try {
 			Thread.sleep(9000);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
 			return false; 
 		}
 		return true;
@@ -263,28 +185,6 @@ public class Peer extends BTClient implements Runnable {
 	}
 	
 	
-
-
-// not sure about these methods
-	public DataInputStream receive (){
-		return datain;
-	}
-
-	public DataOutputStream send (){
-		return dataout; 
-	}
-	
-	public Socket modifysocket(){
-		return s; 
-	}
-
-	public int getPort(){
-		return port; 
-	}
-	
-	public String getIP(){
-		return ip; 
-	}
 
 	
 	public void run() {

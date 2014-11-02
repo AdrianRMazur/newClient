@@ -159,10 +159,9 @@ public class BTClient implements Cloneable {
 		} catch (BencodingException e) {
 			return false; 		
 		} 
-		ArrayList peerList = (ArrayList)obj.get(Constants.PEERS);
 		
+		ArrayList peerList = (ArrayList)obj.get(Constants.PEERS);
 		Downloader[] peers = new Downloader[peerList.size()];
-
 		for(int i=0;i<peerList.size();i++){
 			peers[i]=new Downloader( (Map<ByteBuffer, Object>)peerList.get(i));
 		}
@@ -180,7 +179,7 @@ public class BTClient implements Cloneable {
 		
 		Thread [] threads = new Thread[peers.length];
 
-		System.out.println("----STARTING DOWNLOAD----");
+		System.out.print("WARNING: Torrenting may be illegal in your area and can lead to jail time. Jail is not fun. Please check local laws.\n\n----STARTING DOWNLOAD----\nDownloading");
 		for (int c = 0; c<peerList.size(); c++){
 			threads[c] = new Thread(peers[c]);	
 			threads[c].start();
@@ -189,14 +188,22 @@ public class BTClient implements Cloneable {
 		
 		for (int c = 0; c<peerList.size(); c++){
 			threads[c].join();
+				
+		}
 		
-			
+		System.out.print("File has finished downloading. \nPlease write 'Exit' to quit the program\n> ");
+	String str = null;
+	Scanner reader = new Scanner (System.in); 
+		for (;;){
+			str = reader.next(); 
+			if (str.equalsIgnoreCase("exit")){
+				 break; 
+			}
+			else {
+				System.out.print("Wrong. Please write 'Exit' to quit the program\n> ");
+			}
 		}
-	String str = "no";
-		while(!(str.equals("Exit"))){
-			Scanner reader = new Scanner(System.in);
-			str = reader.next();
-		}
+	
 	
 		
 		return true; 

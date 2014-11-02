@@ -22,7 +22,7 @@ public class Downloader extends BTClient implements Runnable{
 	private  OutputStream output; 
 	private  DataOutputStream dataout; 
 	private  DataInputStream datain; 
-
+	private int tempholder =0;
 	
 	
 	public Downloader(Map<ByteBuffer,Object> peerinfo) {
@@ -36,7 +36,6 @@ public class Downloader extends BTClient implements Runnable{
 	
 	private boolean openSocket(){
 		try {
-			System.out.println("Port: "+ port +  " IP: "+ip);
 			s = new Socket (ip, port);
 			input= s.getInputStream();
 			output = s.getOutputStream(); 
@@ -65,7 +64,7 @@ public class Downloader extends BTClient implements Runnable{
 	private  boolean shakeHands(Message message, TorrentInfo torrentinfo){
 		byte[] fromShake = new byte[67];
 		try {
-		//	ToolKit.print(message.toShake);
+		
 			dataout.write(message.toShake);
 			dataout.flush();
 			
@@ -78,13 +77,8 @@ public class Downloader extends BTClient implements Runnable{
 		
 		try {
 			while(datain.readByte()!=(byte)19);
-			ToolKit.print(message.toShake);
 			datain.readFully(fromShake);
-			ToolKit.print(fromShake);
 		} catch (IOException e) {
-			System.out.println("made it through handshake fail");
-			
-			// handshake failed receiving something
 			return false; 
 		}
 
@@ -96,28 +90,6 @@ public class Downloader extends BTClient implements Runnable{
 		return true; 
 	}
 
-
-
-	//not sure about these methods
-	private DataInputStream receive (){
-		return datain;
-	}
-
-	private DataOutputStream send (){
-		return dataout; 
-	}
-
-	private Socket modifysocket(){
-		return s; 
-	}
-
-	private int getPort(){
-		return port; 
-	}
-
-	private String getIP(){
-		return ip; 
-	}
 	
 	private  boolean unchokepeer(){
 		boolean unChoke = false;
@@ -168,8 +140,8 @@ public class Downloader extends BTClient implements Runnable{
 		int lastpiecelength= torrentinfo.file_length - (torrentinfo.piece_length * (torrentinfo.piece_hashes.length-1));
 		
 		for (int count = 0; count <downloaded.length; count++){
-			if (count % 20 == 0)
-				System.out.println("Downloading..." +percentage() + "%");
+			if (count % 25 == 0)
+				percentage(); 
 			int temp = 0; 
 			if (startedDL[count] == true){
 				continue; 
@@ -226,7 +198,7 @@ public class Downloader extends BTClient implements Runnable{
 				else {
 					int size = 16384;  
 					if (lastpiecelength < 16384){
-						System.out.println("File has finished downloading. Please enter Exit to quit the program");
+					
 						size = lastpiecelength; 
 						if(temp==0){
 							downloaded[count] = new byte[size];
@@ -281,19 +253,19 @@ public class Downloader extends BTClient implements Runnable{
 		}
 		return true; 
 	}
+	 
 	
-	
-	private int percentage(){
+	private void percentage(){
 		float z = 0;
 		for (int c = 0; c< completedDL.length; c++){
 			if (completedDL[c]== true){
 				z++;
 			}	
-		}
-		
+		}		
 		
 		int x = (int)((z*100.0f)/completedDL.length) ;
-		return x; 
+		System.out.print("..."+x +"%");
+		return ; 
 		 
 	}
 	
@@ -301,13 +273,13 @@ public class Downloader extends BTClient implements Runnable{
 		
 		
 		if(BTClient.localIP!=null){
-			if(!(getIP().contains(BTClient.localIP))){
-				System.out.println("The peer at IP "+ getIP()+ " is not contained within the provided localIP");
+			if(!(ip.equals(BTClient.localIP))){
+				System.out.println("The peer at IP "+ ip+ " is not contained within the provided localIP");
 				return; 
 			}
 		}
 		else{
-			if (!(getIP().equals("128.6.171.131") || getIP().equals("128.6.171.130"))){
+			if (!(ip.equals("128.6.171.131") || ip.equals("128.6.171.130"))){
 				return; 
 			}
 		}
@@ -325,15 +297,16 @@ public class Downloader extends BTClient implements Runnable{
 			return;
 		}
 		if (unchokepeer() == false){
-			System.out.println("Error during unchoke");
 			closeSocket();
 			return; 
 		}
 		if(getdata() == false){
+			System.out.println();
 			System.out.println("Error getting data");
 			closeSocket();
 			return; 
 		}
+		System.out.println();
 		closeSocket(); 
 	}
 }
