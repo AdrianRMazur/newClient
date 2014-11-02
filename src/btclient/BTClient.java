@@ -152,14 +152,11 @@ public class BTClient implements Cloneable {
 			return false; 		
 		} 
 		ArrayList peerList = (ArrayList)obj.get(Constants.PEERS);
-		//System.out.println(peerList.size());
-		//ToolKit.print(obj);
+		
 		Downloader[] peers = new Downloader[peerList.size()];
 
 		for(int i=0;i<peerList.size();i++){
-
 			peers[i]=new Downloader( (Map<ByteBuffer, Object>)peerList.get(i));
-			
 		}
 		
 		downloaded = new byte [torrentinfo.piece_hashes.length][];
@@ -173,50 +170,34 @@ public class BTClient implements Cloneable {
 		}
 		
 		
-	//	Thread [] threads = new Thread[peers.length];
-	//	Thread cat, dog;
-		
-		
-		//threads[0] = new Thread(temp[0]);
-		//threads[1] = new Thread(temp[1]);
-		//threads[0].start();
-		//threads[1].start();
-		//cat = new Thread(peers[0]);
-		//dog = new Thread(peers[1]);
-		//cat.start(); 
-		//cat.join();
-		//dog = new Thread(temp2);
-		 
-		//dog.start();
+		Thread [] threads = new Thread[peers.length];
+
 		for (int c = 0; c<peerList.size(); c++){
-			System.out.println(peers[c].ip + "    yufsdsdsdf " + peers[c].port);
-			//temp[c] = new Downloader(peers[c]);
-			
-			//threads[c] = new Thread(temp[c]);	
-			//threads[c].start();
-		}
-	
-	
 		
-		for (int c = 0; c<2; c++){
-		//	threads[c].join();
-			//threads[c].start();
+			
+			threads[c] = new Thread(peers[c]);	
+			
+			threads[c].start();
+		}
+		
+		
+		for (int c = 0; c<peerList.size(); c++){
+			threads[c].join();
+		
 			
 		}
-	/* str = "no";
+	String str = "no";
 		while(!(str.equals("Exit"))){
 			Scanner reader = new Scanner(System.in);
 			str = reader.next();
 		}
-*/
-		
+	
 		
 		return true; 
 	}
 	
 	private static void savetofile(){
-		
-		
+			
 		
 		for (int c = 0; c < downloaded.length; c++) {
 	
@@ -229,49 +210,6 @@ public class BTClient implements Cloneable {
 		}
 	}
 	
-	public static void peerDownload(/*Peer peer*/) throws IOException, InterruptedException{
-		
-	/*		
-		
-		Message message= new Message (Constants.BITTORRENTPROTOCOL,Constants.PEERID, torrentinfo); 
-		for (int c =0; c< currentpeer.size(); c++){
-			if (currentpeer.get(c).shakeHands(message, torrentinfo) == true){
-				goodpeers.add(currentpeer.get(c));
-			};
-		}	
-	
-		unChoke=false; 
-		lastPieceLength= torrentinfo.file_length - (torrentinfo.piece_length * (torrentinfo.piece_hashes.length-1));
-		byte str; 
-		
-	
-		for (int c = 0; c < currentpeer.size(); c++) {
-			while (unChoke == false) {
-				byte[] interested = new byte[5];
-				System.arraycopy(toEndianArray(1), 0, interested, 0, 4);
-				interested[4] = (byte) 2;
-				currentpeer.get(c).send().write(interested);
-				currentpeer.get(c).send().flush();
-				currentpeer.get(c).modifysocket().setSoTimeout(1300000);
-
-				for (int c2 = 0; c < 5; c++) {
-					if (c2 == 4) {
-						str = currentpeer.get(c).receive().readByte();
-						System.out.println(str);
-						if (str == 1) {
-							unChoke = true;
-							break;
-						}
-					}
-					currentpeer.get(c).receive().readByte();
-				}
-			}
-		}
-		
-		for (int c = 0; c < currentpeer.size(); c++) {
-			currentpeer.get(c).closeSocket();
-		} */
-	}
 	
 	public void peerUpload(Peer peer){
 		

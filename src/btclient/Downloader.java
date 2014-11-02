@@ -168,9 +168,10 @@ public class Downloader extends BTClient implements Runnable{
 	private  boolean getdata(){
 		 
 		int lastpiecelength= torrentinfo.file_length - (torrentinfo.piece_length * (torrentinfo.piece_hashes.length-1));
-		System.out.println(lastpiecelength);
+		
 		for (int count = 0; count <downloaded.length; count++){
-			System.out.println(count);
+		
+			System.out.println("Downloading..." +percentage() + "%");
 			int temp = 0; 
 			if (startedDL[count] == true){
 				continue; 
@@ -294,6 +295,18 @@ public class Downloader extends BTClient implements Runnable{
 	}
 	
 	
+	private int percentage(){
+		float z = 0;
+		for (int c = 0; c< completedDL.length; c++){
+			if (completedDL[c]== true){
+				z++;
+			}	
+		}
+		
+		return (int)((z*100.0f)/completedDL.length) ;
+		 
+	}
+	
 	public void run(){
 		//System.out.println(currpeer.getIP() + " " + currpeer.getPort());
 		
@@ -318,11 +331,11 @@ public class Downloader extends BTClient implements Runnable{
 
 		if (shakeHands(message, torrentinfo) == false) {
 			closeSocket(); 
+			System.out.println("handshake error");
 			// error message;
 			return;
 		}
 	
-		System.out.println("made it here2");
 
 	
 		if (unchokepeer() == false){
@@ -340,12 +353,7 @@ public class Downloader extends BTClient implements Runnable{
 			return; 
 		}
 		
-		System.out.println("made it here4");
-		if(getdata() == false){
-			System.out.println("Error getting data");
-			closeSocket();
-			return; 
-		}
+	
 		
 		closeSocket(); 
 	
