@@ -159,7 +159,6 @@ public class BTClient implements Cloneable {
 		} catch (BencodingException e) {
 			return false; 		
 		} 
-		//ToolKit.print(obj);
 		ArrayList peerList = (ArrayList)obj.get(Constants.PEERS);
 		
 		Downloader[] peers = new Downloader[peerList.size()];
@@ -181,11 +180,9 @@ public class BTClient implements Cloneable {
 		
 		Thread [] threads = new Thread[peers.length];
 
+		System.out.println("----STARTING DOWNLOAD----");
 		for (int c = 0; c<peerList.size(); c++){
-		
-			
 			threads[c] = new Thread(peers[c]);	
-			
 			threads[c].start();
 		}
 		
@@ -211,6 +208,10 @@ public class BTClient implements Cloneable {
 		for (int c = 0; c < downloaded.length; c++) {
 	
 			try {
+				if (downloaded[c] == null){
+					System.out.println("ERROR writing file");
+					return; 
+				}
 				savefile.write(downloaded[c]);
 			//	savefile.write(downloaded2[c]);
 			} catch (IOException e) {

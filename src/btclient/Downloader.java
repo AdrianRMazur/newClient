@@ -93,9 +93,6 @@ public class Downloader extends BTClient implements Runnable{
 		if (Arrays.equals(infohashpart, torrentinfo.info_hash.array()) == false){
 			return false; 
 		}
-		
-
-
 		return true; 
 	}
 
@@ -171,8 +168,8 @@ public class Downloader extends BTClient implements Runnable{
 		int lastpiecelength= torrentinfo.file_length - (torrentinfo.piece_length * (torrentinfo.piece_hashes.length-1));
 		
 		for (int count = 0; count <downloaded.length; count++){
-		
-			System.out.println("Downloading..." +percentage() + "%");
+			if (count % 20 == 0)
+				System.out.println("Downloading..." +percentage() + "%");
 			int temp = 0; 
 			if (startedDL[count] == true){
 				continue; 
@@ -190,7 +187,6 @@ public class Downloader extends BTClient implements Runnable{
 				if (count < torrentinfo.piece_hashes.length-1){
 					if (temp==0){
 						downloaded[count] = new byte [torrentinfo.piece_length];
-						//downloaded2[count] = new byte [16384];
 					}
 					System.arraycopy(toEndianArray(count), 0, msgrequest, 5, 4);
 					System.arraycopy(toEndianArray(temp), 0, msgrequest, 9, 4);
@@ -221,10 +217,6 @@ public class Downloader extends BTClient implements Runnable{
 						}
 					}
 					
-			
-					
-	
-				
 					if (temp + 16384 == torrentinfo.piece_length)
 						break; 
 					else
@@ -299,7 +291,9 @@ public class Downloader extends BTClient implements Runnable{
 			}	
 		}
 		
-		return (int)((z*100.0f)/completedDL.length) ;
+		
+		int x = (int)((z*100.0f)/completedDL.length) ;
+		return x; 
 		 
 	}
 	
@@ -318,10 +312,7 @@ public class Downloader extends BTClient implements Runnable{
 			}
 		}
 		
-
-		
 		if (openSocket() == false) {
-			System.out.println("Opening the socket failed.");
 			return;
 		}
 
@@ -331,33 +322,18 @@ public class Downloader extends BTClient implements Runnable{
 
 		if (shakeHands(message, torrentinfo) == false) {
 			closeSocket(); 
-			System.out.println("handshake error");
-			// error message;
 			return;
 		}
-	
-
-	
 		if (unchokepeer() == false){
 			System.out.println("Error during unchoke");
 			closeSocket();
 			return; 
 		}
-		
-		
-		
 		if(getdata() == false){
 			System.out.println("Error getting data");
 			closeSocket();
 			return; 
 		}
-		
-	
-		
 		closeSocket(); 
-	
 	}
-	
-
-
 }
