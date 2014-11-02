@@ -243,12 +243,7 @@ public class Downloader extends BTClient implements Runnable{
 					}
 					
 					lastpiecelength = lastpiecelength - 16384;
-				//	if (temp==0 ){
-					//	downloaded[count] = new byte[size +()];
-					//}
-					//else {
-					//	downloaded2[count] = new byte [size];
-					//}
+			
 					
 					System.arraycopy(toEndianArray(count), 0, msgrequest, 5, 4);
 					System.arraycopy(toEndianArray(temp), 0, msgrequest, 9, 4);
@@ -308,7 +303,7 @@ public class Downloader extends BTClient implements Runnable{
 	}
 	
 	public void run(){
-		//System.out.println(currpeer.getIP() + " " + currpeer.getPort());
+		
 		
 		if (!(getIP().equals("128.6.171.131") || getIP().equals("128.6.171.130"))){
 			return; 
@@ -319,13 +314,10 @@ public class Downloader extends BTClient implements Runnable{
 		
 		if (openSocket() == false) {
 			System.out.println("Opening the socket failed.");
-// connection failed on socket creation;
 			return;
 		}
 
-	System.out.println(getIP() + " " + getPort());
-	System.out.println("***********************");
-		
+
 		Message message = new Message(Constants.BITTORRENTPROTOCOL,
 				Constants.PEERID, torrentinfo);
 
@@ -345,7 +337,6 @@ public class Downloader extends BTClient implements Runnable{
 		}
 		
 		
-		System.out.println("made it here3");
 		
 		if(getdata() == false){
 			System.out.println("Error getting data");
@@ -360,7 +351,5 @@ public class Downloader extends BTClient implements Runnable{
 	}
 	
 
-	
-	
 
 }
