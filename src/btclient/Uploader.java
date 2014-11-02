@@ -21,6 +21,7 @@ public class Uploader implements Runnable {
 		//for(;;){ For project, we only need one connection I believe
 			try {
 				Socket con = serverSide.accept();
+				con.setSoTimeout(100000);
 				Peer peer=new Peer(con);
 				Thread t=new Thread (peer);
 				t.start();
