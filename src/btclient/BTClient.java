@@ -31,6 +31,8 @@ public class BTClient implements Cloneable {
 	public static boolean [] startedDL = null; 
 	public static boolean [] completedDL = null; 
 	
+	static String localIP=null;  
+	
 	public static int d=0;
 	public static int u=0; 
 	
@@ -44,10 +46,16 @@ public class BTClient implements Cloneable {
 	public static void main (String [] args) throws IOException, InterruptedException {
 		
 		if (args.length!=2){
-			System.out.println("Error: Provide torrent file name and save file name. \n");
-			System.exit(1);
+			if(args.length==3){
+				localIP=args[2]; 
+				System.out.println("Local IP provided: "+ localIP + ". Will only be using peers within this IP " );
+			}
+			else{
+				System.out.println("Error: Provide torrent file name and save file name. A local ip address may also be added to spesify download\n");
+				System.exit(1);
+			}
 		} 
-		
+
 		try {
 			savefile = new FileOutputStream(new File(args[1]));
 		} catch (FileNotFoundException e) {
@@ -85,7 +93,7 @@ public class BTClient implements Cloneable {
 		
 		Uploader upload=new Uploader(); 
 		Thread t= new Thread (upload);
-		//t.start();
+		t.start();
 		
 		
 		
@@ -151,6 +159,7 @@ public class BTClient implements Cloneable {
 		} catch (BencodingException e) {
 			return false; 		
 		} 
+		//ToolKit.print(obj);
 		ArrayList peerList = (ArrayList)obj.get(Constants.PEERS);
 		
 		Downloader[] peers = new Downloader[peerList.size()];
@@ -205,7 +214,7 @@ public class BTClient implements Cloneable {
 				savefile.write(downloaded[c]);
 			//	savefile.write(downloaded2[c]);
 			} catch (IOException e) {
-				System.out.println("damm");// error
+				
 			}
 		}
 	}

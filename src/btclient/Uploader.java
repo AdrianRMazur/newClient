@@ -11,6 +11,7 @@ public class Uploader implements Runnable {
 	
 	public Uploader() throws IOException{
 		serverSide=new ServerSocket(port);
+		serverSide.setSoTimeout(10000);
 	}
 	
 	
@@ -39,14 +40,6 @@ public class Uploader implements Runnable {
 		//}
 	}
 	
-	public void closeSocket(){
-		try {
-			serverSide.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
 	
 	
 	

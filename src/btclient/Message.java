@@ -14,7 +14,7 @@ public class Message {
 		x = peerid.length;	
 		peeridstring = buildstring(torrentinfo, x);
 		urlstring = torrentinfo.announce_url.toString() + "?info_hash=" + infohash + "&peer_id="+Constants.PEER_ID + "&port="+Constants.OUR_PORT+"&uploaded="+BTClient.u+"&downloaded="+BTClient.d+"&left=" +(torrentinfo.file_length-BTClient.d)+ "&event=started"  ;
-		System.out.println("URLSTRING: "+urlstring);
+		//System.out.println("URLSTRING: "+urlstring);
 	}
 	
 	

@@ -96,9 +96,7 @@ public class Peer extends BTClient implements Runnable {
 			ToolKit.print(message.toShake);
 			datain.readFully(fromShake);
 			ToolKit.print(fromShake);
-		} catch (IOException e) {
-			System.out.println("made it through handshake fail");
-			
+		} catch (IOException e) {			
 			// handshake failed receiving something
 			return false; 
 		}
@@ -123,8 +121,8 @@ public class Peer extends BTClient implements Runnable {
 		int begin;
 		int length;
 		
-		System.out.println("From peer handshake: ");
-		ToolKit.print(fromShake);
+		/*System.out.println("From peer handshake: ");
+		ToolKit.print(fromShake);*/
 		
 		//return back to them, but with our part of the handshake
 		Message message = new Message(Constants.BITTORRENTPROTOCOL, Constants.PEERID,BTClient.torrentinfo); 
@@ -136,12 +134,12 @@ public class Peer extends BTClient implements Runnable {
 		for(int j=0;j<torrentinfo.piece_hashes.length*2+1;j++){/*limit this, so we dont get EOF*/
 			
 			int prefix= datain.readInt(); //Length-prefix
-			System.out.println("datain prefix: " + prefix);
+			/*System.out.println("datain prefix: " + prefix);*/
 			if(prefix==0){
 				continue; 
 			}
 			byte id=datain .readByte();//message ID
-			System.out.println("id: "+id);
+		/*	System.out.println("id: "+id);*/
 
 			if(id==Constants.INTERESTED_ID){//Interested, return interest 
 			//	System.out.println("Here");
@@ -161,13 +159,10 @@ public class Peer extends BTClient implements Runnable {
 				length=datain.readInt(); 
 				block=new byte[length]; //
 				
-				/*if(begin==435){
-					begin=16384;
-				}*/
 				
 				if(this.checkIfAvailable(index)){
 					BTClient.u=u+length; 
-					System.out.println("Index: "+ index+ " begin: "+begin+" length: "+ length );
+				/*	System.out.println("Index: "+ index+ " begin: "+begin+" length: "+ length );*/
 					System.arraycopy(BTClient.downloaded[index], begin, block, 0, length);
 					//block=BTClient.downloaded[index];
 					if(begin==435){
@@ -183,8 +178,8 @@ public class Peer extends BTClient implements Runnable {
 					try {
 						Thread.sleep(9000);
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
+						return false;
 					}
 					BTClient.u=u+length; 
 					System.out.println("Index: "+ index+ " begin: "+begin+" length: "+ length );

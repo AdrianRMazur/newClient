@@ -2,9 +2,12 @@ package btclient;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Constants {
 
+	static Random random= new Random(); 
+	
 	public final static byte[] PEERID = { 'k','o','s','t','i','a','n','d','a','d','r','i','a','n','@','@','@','@','@','@'};
 	public final static String PEER_ID = "KostiAndAdrian@@@@@@";
 	public final static byte [] BITTORRENTPROTOCOL = new byte [] {'B','i','t','T','o','r','r','e','n','t',' ','p','r','o','t','o','c','o','l'};
@@ -23,5 +26,5 @@ public class Constants {
 	public final static byte HAVE_ID = 4; 
 	public final static byte REQUEST_ID = 6; 
 	
-	public final static int OUR_PORT = 6666; 
+	public final static int OUR_PORT = random.nextInt(7200 - 6881 + 1) + 6881; 
 }

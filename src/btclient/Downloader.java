@@ -36,6 +36,7 @@ public class Downloader extends BTClient implements Runnable{
 	
 	private boolean openSocket(){
 		try {
+			System.out.println("Port: "+ port +  " IP: "+ip);
 			s = new Socket (ip, port);
 			input= s.getInputStream();
 			output = s.getOutputStream(); 
@@ -64,7 +65,7 @@ public class Downloader extends BTClient implements Runnable{
 	private  boolean shakeHands(Message message, TorrentInfo torrentinfo){
 		byte[] fromShake = new byte[67];
 		try {
-			ToolKit.print(message.toShake);
+		//	ToolKit.print(message.toShake);
 			dataout.write(message.toShake);
 			dataout.flush();
 			
@@ -233,7 +234,7 @@ public class Downloader extends BTClient implements Runnable{
 				else {
 					int size = 16384;  
 					if (lastpiecelength < 16384){
-						System.out.println("asdfsdfsd");
+						System.out.println("File has finished downloading. Please enter Exit to quit the program");
 						size = lastpiecelength; 
 						if(temp==0){
 							downloaded[count] = new byte[size];
@@ -305,10 +306,17 @@ public class Downloader extends BTClient implements Runnable{
 	public void run(){
 		
 		
-		if (!(getIP().equals("128.6.171.131") || getIP().equals("128.6.171.130"))){
-			return; 
+		if(BTClient.localIP!=null){
+			if(!(getIP().contains(BTClient.localIP))){
+				System.out.println("The peer at IP "+ getIP()+ " is not contained within the provided localIP");
+				return; 
+			}
 		}
-	
+		else{
+			if (!(getIP().equals("128.6.171.131") || getIP().equals("128.6.171.130"))){
+				return; 
+			}
+		}
 		
 
 		
