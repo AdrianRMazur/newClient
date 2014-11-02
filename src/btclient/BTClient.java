@@ -209,70 +209,62 @@ public class BTClient implements Cloneable {
 		return true; 
 	}
 	
-	private static void savetofile(){
-			
-		
+	private static void savetofile() {
 		for (int c = 0; c < downloaded.length; c++) {
-	
+
 			try {
-				if (downloaded[c] == null){
+				if (downloaded[c] == null) {
 					System.out.println("ERROR writing file");
-					return; 
+					return;
 				}
 				savefile.write(downloaded[c]);
-			//	savefile.write(downloaded2[c]);
+				// savefile.write(downloaded2[c]);
 			} catch (IOException e) {
-				
+
 			}
 		}
 	}
-	
-	
-	public void peerUpload(Peer peer){
-		
-	}
-	
+
 	/**********************************************************************
-	 * TOOOLS GO HERE 
+	 * TOOOLS GO HERE
 	 * 
 	 ***********************************************************************/
-	
-	
-	private static void closer(){
+
+	private static void closer() {
 		try {
 			savefile.close();
 		} catch (IOException e) {
-			
+
 			e.printStackTrace();
-		} 
-//		System.out.println("Error: A critical error occured");
+		}
+		// System.out.println("Error: A critical error occured");
 		System.exit(1);
 	}
-	
-	  public static String byteArrayToHex(byte[] a) {
-		 StringBuilder sb = new StringBuilder(a.length * 2);
-		 for(byte b: a)
-			 sb.append('%').append(String.format("%02x", b & 0xff));
-		 return sb.toString();
-	  }
-	  
-	
-	public static  int fromEndianArray(byte[] x){
-	    ByteBuffer temp = ByteBuffer.wrap(x);
-	    temp.order(ByteOrder.BIG_ENDIAN);
-	    return temp.getInt();
+
+	public static String byteArrayToHex(byte[] a) {
+		StringBuilder sb = new StringBuilder(a.length * 2);
+		for (byte b : a)
+			sb.append('%').append(String.format("%02x", b & 0xff));
+		return sb.toString();
 	}
 	  
-	public static byte[] toEndianArray(int x){
-	    ByteBuffer temp = ByteBuffer.allocate(4);
-	    temp.order(ByteOrder.BIG_ENDIAN);
-	    temp.putInt(x);
-	    temp.flip();
-	    return temp.array();
-	}
 	
-	public static boolean checkIfAvailable(int index){
-		return completedDL[index]; 
+	public static int fromEndianArray(byte[] x) {
+		ByteBuffer temp = ByteBuffer.wrap(x);
+		temp.order(ByteOrder.BIG_ENDIAN);
+		return temp.getInt();
 	}
-	
+
+	public static byte[] toEndianArray(int x) {
+		ByteBuffer temp = ByteBuffer.allocate(4);
+		temp.order(ByteOrder.BIG_ENDIAN);
+		temp.putInt(x);
+		temp.flip();
+		return temp.array();
+	}
+
+	public static boolean checkIfAvailable(int index) {
+		return completedDL[index];
+	}
+
 }

@@ -288,25 +288,24 @@ public class Downloader extends BTClient implements Runnable{
 			return;
 		}
 
-
 		Message message = new Message(Constants.BITTORRENTPROTOCOL,
 				Constants.PEERID, torrentinfo);
 
 		if (shakeHands(message, torrentinfo) == false) {
-			closeSocket(); 
+			closeSocket();
 			return;
 		}
-		if (unchokepeer() == false){
+		if (unchokepeer() == false) {
 			closeSocket();
-			return; 
+			return;
 		}
-		if(getdata() == false){
+		if (getdata() == false) {
 			System.out.println();
 			System.out.println("Error getting data");
 			closeSocket();
-			return; 
+			return;
 		}
 		System.out.println();
-		closeSocket(); 
+		closeSocket();
 	}
 }
