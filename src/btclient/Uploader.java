@@ -11,14 +11,15 @@ public class Uploader implements Runnable {
 
 	public Uploader() throws IOException {
 		serverSide = new ServerSocket(port);
-		serverSide.setSoTimeout(10000);
+		//serverSide.setSoTimeout(10000);
 	}
 
 	public void run() {
 		System.out.println("Our listening port is: "+port);
-		
+		//for(int i=0;i<10;i++){
 		try {
 			Socket con = serverSide.accept();
+			System.out.println("\n Connected to port: ");
 			con.setSoTimeout(100000);
 			Peer peer = new Peer(con);
 			Thread t = new Thread(peer);
@@ -34,5 +35,6 @@ public class Uploader implements Runnable {
 		} catch (IOException e) {
 			return;
 		}
+		//}
 	}
 }

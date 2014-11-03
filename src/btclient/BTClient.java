@@ -173,7 +173,7 @@ public class BTClient implements Cloneable, Serializable {
 	}
 	
 	
-	
+
 	private static boolean validatePeers(byte[] serverreply) throws IOException, InterruptedException{
 		Map<ByteBuffer, Object> obj = null;  
 		try {
@@ -181,7 +181,7 @@ public class BTClient implements Cloneable, Serializable {
 		} catch (BencodingException e) {
 			return false; 		
 		} 
-		ToolKit.print(obj);
+		//ToolKit.print(obj);
 		ArrayList peerList = (ArrayList)obj.get(Constants.PEERS);
 		Downloader[] peers = new Downloader[peerList.size()];
 		for(int i=0;i<peerList.size();i++){
