@@ -19,7 +19,7 @@ public class Uploader implements Runnable {
 		//for(int i=0;i<10;i++){
 		try {
 			Socket con = serverSide.accept();
-			System.out.println("\n Connected to port: ");
+			System.out.println("\n Connected to a peer!");
 			con.setSoTimeout(100000);
 			Peer peer = new Peer(con);
 			Thread t = new Thread(peer);

@@ -69,7 +69,7 @@ public class BTClient implements Cloneable, Serializable {
 		Serialization.validateFile(fileName);
 		try {
 	           downloaded = (byte[][]) Serialization.deserialize(fileName);
-		       System.out.println("Found previously downloaded file of size: "+downloaded.length);
+		     //  System.out.println("Found previously downloaded file of size: "+downloaded.length);
 	       } catch (ClassNotFoundException | IOException e) {
 	           System.out.println("New file headers need to be rewritten.....");
 	       }
