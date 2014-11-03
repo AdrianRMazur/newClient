@@ -15,8 +15,8 @@ public class Uploader implements Runnable {
 	}
 
 	public void run() {
-		// System.out.println("Our listening port is: "+port);
-		// for(;;){ For project, we only need one connection I believe
+		System.out.println("Our listening port is: "+port);
+		
 		try {
 			Socket con = serverSide.accept();
 			con.setSoTimeout(100000);

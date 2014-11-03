@@ -189,7 +189,7 @@ public class Peer extends BTClient implements Runnable {
 	
 	public void run() {
 		if(uploadToPeer()==false){
-			System.out.println("Issue uploading to peer, please re-run the program. ");
+			System.out.println("There was an issue with uploading to one of the peers, but that's OK");
 		}
 	}
 	

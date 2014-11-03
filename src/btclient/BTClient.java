@@ -11,6 +11,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.Socket;
@@ -23,7 +24,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Scanner;
 
-public class BTClient implements Cloneable {
+public class BTClient implements Cloneable, Serializable {
 
 	public static TorrentInfo torrentinfo = null; 
 	public static byte [] []downloaded=null;
@@ -31,7 +32,8 @@ public class BTClient implements Cloneable {
 	public static boolean [] startedDL = null; 
 	public static boolean [] completedDL = null; 
 	
-	static String localIP=null;  
+	static String localIP=null; 
+	static String fileName= "downloaded.ser";
 	
 	public static int d=0;
 	public static int u=0; 
@@ -62,6 +64,20 @@ public class BTClient implements Cloneable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		
+		Serialization.validateFile(fileName);
+		try {
+	           downloaded = (byte[][]) Serialization.deserialize(fileName);
+		       System.out.println("Found previously downloaded file of size: "+downloaded.length);
+	       } catch (ClassNotFoundException | IOException e) {
+	           System.out.println("New file headers need to be rewritten.....");
+	       }
+	         
+
+	         
+	    
+		
 		
 		input = null; 
 		File inputtorrent = new File (args[0]);
@@ -107,6 +123,15 @@ public class BTClient implements Cloneable {
 			closer();
 			return; 
 		}
+		
+		try {
+            Serialization.serialize(downloaded, fileName);
+            System.out.println("Saving file, for later");
+        } catch (IOException e) {
+        	System.out.println("Error saving file for later");
+            e.printStackTrace();
+        }
+		
 		
 		savetofile(); 
 		
@@ -159,7 +184,7 @@ public class BTClient implements Cloneable {
 		} catch (BencodingException e) {
 			return false; 		
 		} 
-		
+		//ToolKit.print(obj);
 		ArrayList peerList = (ArrayList)obj.get(Constants.PEERS);
 		Downloader[] peers = new Downloader[peerList.size()];
 		for(int i=0;i<peerList.size();i++){
