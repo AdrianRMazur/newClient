@@ -135,7 +135,7 @@ public class Peer extends BTClient implements Runnable {
 				if(this.checkIfAvailable(index)){
 					BTClient.u=u+length; 
 				/*	System.out.println("Index: "+ index+ " begin: "+begin+" length: "+ length );*/
-					System.arraycopy(BTClient.downloaded[index], begin, block, 0, length);
+					//System.arraycopy(BTClient.downloaded[index], begin, block, 0, length);
 					//block=BTClient.downloaded[index];
 					if(begin==435){
 						begin=16384;

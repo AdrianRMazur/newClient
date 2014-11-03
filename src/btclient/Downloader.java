@@ -273,7 +273,7 @@ public class Downloader extends BTClient implements Runnable{
 		
 		
 		if(BTClient.localIP!=null){
-			if(!(ip.equals(BTClient.localIP))){
+			if(!(ip.contains(BTClient.localIP))){
 				System.out.println("The peer at IP "+ ip+ " is not contained within the provided localIP");
 				return; 
 			}
