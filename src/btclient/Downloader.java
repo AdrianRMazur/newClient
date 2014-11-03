@@ -146,9 +146,9 @@ public class Downloader extends BTClient implements Runnable{
 		 
 		int lastpiecelength= torrentinfo.file_length - (torrentinfo.piece_length * (torrentinfo.piece_hashes.length-1));
 		int count = 0;
-		//while (count < completedDL.length && completedDL[count]==true ){
-		//	count++;
-		//}
+		while (count < completedDL.length && completedDL[count]==true ){
+			count++;
+		}
 		
 		
 		for (; count <downloaded.length; count++){
@@ -264,6 +264,11 @@ public class Downloader extends BTClient implements Runnable{
 			}
 			completedDL[count] = true; 
 			if (stopthread == true){
+				threadstopped = true; 
+				try {
+					Serialization.serialize(downloaded, fileName);
+				} catch (IOException e) {
+				}
 				break; 
 			}
 		}
@@ -324,8 +329,10 @@ public class Downloader extends BTClient implements Runnable{
 			closeSocket();
 			return;
 		}
-		System.out.println();
-		System.out.println("Download is complete.\nType 'exit' to exit the program");
+		if (stopthread!=true){
+			System.out.println();
+			System.out.println("Download is complete.\nType 'exit' to exit the program");
+		}	
 		closeSocket();
 	}
 }

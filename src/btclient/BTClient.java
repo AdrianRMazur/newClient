@@ -14,7 +14,6 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.Socket;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
@@ -37,6 +36,7 @@ public class BTClient implements Cloneable, Serializable {
 	static String localIP=null; 
 	static String fileName= "downloaded.ser";
 	public static boolean stopthread = false; 
+	public static boolean threadstopped = false; 
 	 
 	
 	public static int d=0;
@@ -44,10 +44,7 @@ public class BTClient implements Cloneable, Serializable {
 	
 	public static FileOutputStream savefile = null;
 	private static DataInputStream input;
-	//private static boolean unChoke; 
-	private static int lastPieceLength; 
-	private static ArrayList <Peer> currentpeer; 
-	private static ArrayList <Peer> goodpeers; 
+
 	
 	public static void main (String [] args) throws IOException, InterruptedException {
 		
@@ -95,13 +92,10 @@ public class BTClient implements Cloneable, Serializable {
 			torrentinfo = new TorrentInfo(torrentbyte);
 			input.close(); 
 		} catch (FileNotFoundException e2) {
-			e2.printStackTrace();
 			closer(); 
 		} catch (IOException e) {
-			e.printStackTrace();
 			closer(); 
 		} catch (BencodingException e) {
-			e.printStackTrace();
 			closer(); 
 		}
 		
@@ -152,7 +146,6 @@ public class BTClient implements Cloneable, Serializable {
 		try {
 			url = new URL (urlstring);
 		} catch (MalformedURLException e1) {
-			e1.printStackTrace();
 			closer();
 			return null; 
 		}
@@ -171,7 +164,6 @@ public class BTClient implements Cloneable, Serializable {
 			in.close();
 		
 		} catch (IOException e) {
-			e.printStackTrace();
 			closer(); 
 			return null; 
 		}
@@ -232,10 +224,14 @@ public class BTClient implements Cloneable, Serializable {
 		}
 		stopthread = true; 
 		
+	
+		
 		for (int c = 0; c<peerList.size(); c++){
 			threads[c].join();
 		}
-		
+		if (threadstopped == true){
+			System.exit(1);
+		}
 		return true; 
 	}
 	
@@ -272,7 +268,6 @@ public class BTClient implements Cloneable, Serializable {
 			savefile.close();
 		} catch (IOException e) {
 
-			e.printStackTrace();
 		}
 		// System.out.println("Error: A critical error occured");
 		System.exit(1);
