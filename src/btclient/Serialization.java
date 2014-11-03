@@ -18,6 +18,7 @@ public class Serialization {
 		ObjectInputStream ois = new ObjectInputStream(fis);
 		Object obj = ois.readObject();
 		ois.close();
+		
 		return obj;
 	}
 

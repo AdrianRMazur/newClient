@@ -1,16 +1,20 @@
 package btclient;
 
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Scanner;
 
 
 
@@ -23,7 +27,10 @@ public class Downloader extends BTClient implements Runnable{
 	private  DataOutputStream dataout; 
 	private  DataInputStream datain; 
 	private int tempholder =0;
+	private static int exiter;
 	
+	
+	 
 	
 	public Downloader(Map<ByteBuffer,Object> peerinfo) {
 		
@@ -138,8 +145,13 @@ public class Downloader extends BTClient implements Runnable{
 	private  boolean getdata(){
 		 
 		int lastpiecelength= torrentinfo.file_length - (torrentinfo.piece_length * (torrentinfo.piece_hashes.length-1));
+		int count = 0;
+		//while (count < completedDL.length && completedDL[count]==true ){
+		//	count++;
+		//}
 		
-		for (int count = 0; count <downloaded.length; count++){
+		
+		for (; count <downloaded.length; count++){
 			if (count % 25 == 0)
 				percentage(); 
 			int temp = 0; 
@@ -180,6 +192,7 @@ public class Downloader extends BTClient implements Runnable{
 							return false; 
 						}
 					} 
+					
 					
 					for (int c = temp; c< 16384+temp; c++){
 						try {
@@ -250,6 +263,9 @@ public class Downloader extends BTClient implements Runnable{
 				
 			}
 			completedDL[count] = true; 
+			if (stopthread == true){
+				break; 
+			}
 		}
 		return true; 
 	}
@@ -265,6 +281,7 @@ public class Downloader extends BTClient implements Runnable{
 		
 		int x = (int)((z*100.0f)/completedDL.length) ;
 		System.out.print("..."+x +"%");
+		
 		return ; 
 		 
 	}
@@ -299,6 +316,8 @@ public class Downloader extends BTClient implements Runnable{
 			closeSocket();
 			return;
 		}
+		
+	
 		if (getdata() == false) {
 			System.out.println();
 			System.out.println("Error getting data");
@@ -306,6 +325,7 @@ public class Downloader extends BTClient implements Runnable{
 			return;
 		}
 		System.out.println();
+		System.out.println("Download is complete.\nType 'exit' to exit the program");
 		closeSocket();
 	}
 }

@@ -19,6 +19,7 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
@@ -28,12 +29,15 @@ public class BTClient implements Cloneable, Serializable {
 
 	public static TorrentInfo torrentinfo = null; 
 	public static byte [] []downloaded=null;
-	public static byte [] [] downloaded2 = null; 
+	 
 	public static boolean [] startedDL = null; 
 	public static boolean [] completedDL = null; 
 	
+	public boolean command = false;
 	static String localIP=null; 
 	static String fileName= "downloaded.ser";
+	public static boolean stopthread = false; 
+	 
 	
 	public static int d=0;
 	public static int u=0; 
@@ -61,8 +65,7 @@ public class BTClient implements Cloneable, Serializable {
 		try {
 			savefile = new FileOutputStream(new File(args[1]));
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			
 		}
 		
 		
@@ -73,12 +76,7 @@ public class BTClient implements Cloneable, Serializable {
 	       } catch (ClassNotFoundException | IOException e) {
 	           System.out.println("New file headers need to be rewritten.....");
 	       }
-	         
-
-	         
-	    
-		
-		
+	         		
 		input = null; 
 		File inputtorrent = new File (args[0]);
 		int torrentsize = (int) inputtorrent.length();
@@ -126,14 +124,19 @@ public class BTClient implements Cloneable, Serializable {
 		
 		try {
             Serialization.serialize(downloaded, fileName);
-            System.out.println("Saving file, for later");
+            
         } catch (IOException e) {
-        	System.out.println("Error saving file for later");
-            e.printStackTrace();
+        	
         }
 		
 		
 		savetofile(); 
+		
+		for (int c = 0; c<downloaded.length; c++){
+			downloaded[c] = null; 
+		}
+		Serialization.serialize(downloaded, fileName);
+		
 		
 		closer();
 	}
@@ -177,7 +180,9 @@ public class BTClient implements Cloneable, Serializable {
 		
 	}
 	
-	public static boolean validatePeers(byte[] serverreply) throws IOException, InterruptedException{
+	
+	
+	private static boolean validatePeers(byte[] serverreply) throws IOException, InterruptedException{
 		Map<ByteBuffer, Object> obj = null;  
 		try {
 			obj=(Map<ByteBuffer, Object>)Bencoder2.decode(serverreply);
@@ -191,8 +196,11 @@ public class BTClient implements Cloneable, Serializable {
 			peers[i]=new Downloader( (Map<ByteBuffer, Object>)peerList.get(i));
 		}
 		
-		downloaded = new byte [torrentinfo.piece_hashes.length][];
-		downloaded2 = new byte [torrentinfo.piece_hashes.length][];
+		
+		if (downloaded == null){
+			downloaded = new byte [torrentinfo.piece_hashes.length][];
+		}
+		
 		startedDL = new boolean [torrentinfo.piece_hashes.length];
 		completedDL = new boolean [torrentinfo.piece_hashes.length];
 		
@@ -202,58 +210,62 @@ public class BTClient implements Cloneable, Serializable {
 		}
 		
 		
+		loadarrays();
+		
 		Thread [] threads = new Thread[peers.length];
-
+		System.out.println("Enter the word 'exit' at any time to save state and exit");
 		System.out.print("WARNING: Torrenting may be illegal in your area and can lead to jail time. Jail is not fun. Please check local laws.\n\n----STARTING DOWNLOAD----\nDownloading");
 		for (int c = 0; c<peerList.size(); c++){
 			threads[c] = new Thread(peers[c]);	
 			threads[c].start();
 		}
 		
+		String str = null;
+		Scanner reader = new Scanner(System.in);
+		for (;;) {
+			str = reader.next();
+			if (str.equalsIgnoreCase("exit")) {
+				break;
+			} else {
+				System.out.print("Wrong. Please write 'Exit' to quit the program\n");
+			}
+		}
+		stopthread = true; 
 		
 		for (int c = 0; c<peerList.size(); c++){
 			threads[c].join();
-				
 		}
-		
-		System.out.print("File has finished downloading. \nPlease write 'Exit' to quit the program\n> ");
-	String str = null;
-	Scanner reader = new Scanner (System.in); 
-		for (;;){
-			str = reader.next(); 
-			if (str.equalsIgnoreCase("exit")){
-				 break; 
-			}
-			else {
-				System.out.print("Wrong. Please write 'Exit' to quit the program\n> ");
-			}
-		}
-	
-	
 		
 		return true; 
 	}
 	
+	private static void loadarrays() {
+
+		for (int c = 0; c < downloaded.length; c++) {
+			if (downloaded[c] != null) {
+				completedDL[c] = true;
+				startedDL[c] = true;
+			}
+			else {
+				break; 
+			}
+		}
+	}
+	
 	private static void savetofile() {
 		for (int c = 0; c < downloaded.length; c++) {
-
 			try {
 				if (downloaded[c] == null) {
 					System.out.println("ERROR writing file");
 					return;
 				}
 				savefile.write(downloaded[c]);
-				// savefile.write(downloaded2[c]);
 			} catch (IOException e) {
 
 			}
 		}
 	}
 
-	/**********************************************************************
-	 * TOOOLS GO HERE
-	 * 
-	 ***********************************************************************/
 
 	private static void closer() {
 		try {
