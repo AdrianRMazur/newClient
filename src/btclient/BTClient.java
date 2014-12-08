@@ -1,5 +1,6 @@
 package btclient;
 
+import java.awt.Dimension;
 import java.io.BufferedInputStream;
 import java.io.Console;
 import java.io.DataInputStream;
@@ -12,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -24,7 +26,12 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Scanner;
 
-public class BTClient implements Cloneable, Serializable {
+import javax.swing.JFrame;
+
+import GUI.DisplayPanel;
+import GUI.FirstPanel;
+
+public class BTClient implements Cloneable, Serializable, Runnable {
 
 	public static TorrentInfo torrentinfo = null; 
 	public static byte [] []downloaded=null;
@@ -34,7 +41,7 @@ public class BTClient implements Cloneable, Serializable {
 	
 	public boolean command = false;
 	static String localIP=null; 
-	static String fileName= "downloaded.ser";
+	public static String fileName= "downloaded.ser";
 	public static boolean stopthread = false; 
 	public static boolean threadstopped = false; 
 	 
@@ -45,94 +52,18 @@ public class BTClient implements Cloneable, Serializable {
 	public static FileOutputStream savefile = null;
 	private static DataInputStream input;
 
+	private String torrent; 
+	private String saved; 
+	private String ip; 
 	
-	public static void main (String [] args) throws IOException, InterruptedException {
+	
+	public BTClient (String torrent, String saved, String ip){
 		
-		if (args.length!=2){
-			if(args.length==3){
-				localIP=args[2]; 
-				System.out.println("Local IP provided: "+ localIP + ". Will only be using peers within this IP " );
-			}
-			else{
-				System.out.println("Error: Provide torrent file name and save file name. A local ip address may also be added to spesify download\n");
-				System.exit(1);
-			}
-		} 
-
-		try {
-			savefile = new FileOutputStream(new File(args[1]));
-		} catch (FileNotFoundException e) {
+		this.torrent = torrent; 
+		this.saved = saved; 
+		this.ip = ip; 
 			
-		}
 		
-		
-		Serialization.validateFile(fileName);
-		try {
-	           downloaded = (byte[][]) Serialization.deserialize(fileName);
-		     //  System.out.println("Found previously downloaded file of size: "+downloaded.length);
-	       } catch (ClassNotFoundException | IOException e) {
-	           System.out.println("New file headers need to be rewritten.....");
-	       }
-	         		
-		input = null; 
-		File inputtorrent = new File (args[0]);
-		int torrentsize = (int) inputtorrent.length();
-		
-		if (torrentsize > 1000000){
-			System.out.println("Error: File size too large");
-			System.exit(1);
-		}
-		
-		byte[] torrentbyte = new byte[torrentsize];
-
-		
-		try {
-			input = new DataInputStream (new BufferedInputStream(new FileInputStream(inputtorrent)));
-			input.read(torrentbyte);
-			torrentinfo = new TorrentInfo(torrentbyte);
-			input.close(); 
-		} catch (FileNotFoundException e2) {
-			closer(); 
-		} catch (IOException e) {
-			closer(); 
-		} catch (BencodingException e) {
-			closer(); 
-		}
-		
-		Uploader upload=new Uploader(); 
-		Thread t= new Thread (upload);
-		t.start();
-		
-		
-		
-		byte [] serverreply = EstablishConnection();
-		if (serverreply == null){
-			closer(); 
-			return; 
-		}
-		
-		if ( validatePeers(serverreply) == false){
-			closer();
-			return; 
-		}
-		
-		try {
-            Serialization.serialize(downloaded, fileName);
-            
-        } catch (IOException e) {
-        	
-        }
-		
-		
-		savetofile(); 
-		
-		for (int c = 0; c<downloaded.length; c++){
-			downloaded[c] = null; 
-		}
-		Serialization.serialize(downloaded, fileName);
-		
-		
-		closer();
 	}
 	
 	
@@ -185,7 +116,8 @@ public class BTClient implements Cloneable, Serializable {
 		ArrayList peerList = (ArrayList)obj.get(Constants.PEERS);
 		Downloader[] peers = new Downloader[peerList.size()];
 		for(int i=0;i<peerList.size();i++){
-			peers[i]=new Downloader( (Map<ByteBuffer, Object>)peerList.get(i));
+			peers[i]=new Downloader( (Map<ByteBuffer, Object>)peerList.get(i), i);
+			
 		}
 		
 		
@@ -205,8 +137,8 @@ public class BTClient implements Cloneable, Serializable {
 		loadarrays();
 		
 		Thread [] threads = new Thread[peers.length];
-		System.out.println("Enter the word 'exit' at any time to save state and exit");
-		System.out.print("WARNING: Torrenting may be illegal in your area and can lead to jail time. Jail is not fun. Please check local laws.\n\n----STARTING DOWNLOAD----\nDownloading");
+		
+		
 		for (int c = 0; c<peerList.size(); c++){
 			threads[c] = new Thread(peers[c]);	
 			threads[c].start();
@@ -252,7 +184,7 @@ public class BTClient implements Cloneable, Serializable {
 		for (int c = 0; c < downloaded.length; c++) {
 			try {
 				if (downloaded[c] == null) {
-					System.out.println("ERROR writing file");
+					DisplayPanel.error("ERROR writing file");
 					return;
 				}
 				savefile.write(downloaded[c]);
@@ -297,6 +229,117 @@ public class BTClient implements Cloneable, Serializable {
 
 	public static boolean checkIfAvailable(int index) {
 		return completedDL[index];
+	}
+
+
+	public void run() {
+
+		if(!ip.equals("")){
+			localIP = ip; 
+		}
+
+		try {
+			savefile = new FileOutputStream(new File(saved));
+		} catch (FileNotFoundException e) {
+			
+		}
+		
+		
+		try {
+			Serialization.validateFile(fileName);
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (UnsupportedEncodingException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		try {
+	           downloaded = (byte[][]) Serialization.deserialize(fileName);
+		     //  System.out.println("Found previously downloaded file of size: "+downloaded.length);
+	       } catch (ClassNotFoundException | IOException e) {
+	           
+	       }
+	         		
+		input = null; 
+		File inputtorrent = new File (torrent);
+		int torrentsize = (int) inputtorrent.length();
+		
+		if (torrentsize > 1000000){
+			DisplayPanel.error("Error: File size too large"); 
+			System.exit(1);
+		}
+		
+		byte[] torrentbyte = new byte[torrentsize];
+
+		
+		try {
+			input = new DataInputStream (new BufferedInputStream(new FileInputStream(inputtorrent)));
+			input.read(torrentbyte);
+			torrentinfo = new TorrentInfo(torrentbyte);
+			input.close(); 
+		} catch (FileNotFoundException e2) {
+			closer(); 
+		} catch (IOException e) {
+			closer(); 
+		} catch (BencodingException e) {
+			closer(); 
+		}
+		
+		Uploader upload = null;
+		try {
+			upload = new Uploader();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} 
+		Thread t= new Thread (upload);
+		t.start();
+		
+		
+		
+		byte [] serverreply = EstablishConnection();
+		if (serverreply == null){
+			closer(); 
+			return; 
+		}
+		
+		try {
+			if ( validatePeers(serverreply) == false){
+				closer();
+				return; 
+			}
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		try {
+            Serialization.serialize(downloaded, fileName);
+            
+        } catch (IOException e) {
+        	
+        }
+		
+		
+		savetofile(); 
+		
+		for (int c = 0; c<downloaded.length; c++){
+			downloaded[c] = null; 
+		}
+		try {
+			Serialization.serialize(downloaded, fileName);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		closer();
+		
 	}
 
 }

@@ -11,9 +11,11 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Map;
 
+import GUI.DisplayPanel;
 
 
-public class Peer extends BTClient implements Runnable {
+
+public class Peer  implements Runnable {
 	private Thread t = new Thread ();	
 	private int port;
 	private String ip = null;
@@ -28,17 +30,18 @@ public class Peer extends BTClient implements Runnable {
 		try {
 			ip = new String ( ((ByteBuffer)peerinfo.get(Constants.IP)).array(), "ASCII" );
 		} catch (UnsupportedEncodingException e) {}
-			
+		
+		
 
 	}
 	
 	
-	public Peer(Socket con) throws IOException{
+	public Peer(Socket con) throws IOException, InterruptedException{
 		output=con.getOutputStream();
 		input=con.getInputStream();
 		datain=new DataInputStream(input);
 		dataout=new DataOutputStream(output);
-		
+
 	}
 	
 	
@@ -72,7 +75,7 @@ public class Peer extends BTClient implements Runnable {
 		
 		/*Start reading the bytes sent to us*/
 		/*have to code to start choking when cannot keep up*/
-		for(int j=0;j<torrentinfo.piece_hashes.length*2+1;j++){/*limit this, so we dont get EOF*/
+		for(int j=0;j<BTClient.torrentinfo.piece_hashes.length*2+1;j++){/*limit this, so we dont get EOF*/
 			
 			int prefix;
 			try {
@@ -132,8 +135,8 @@ public class Peer extends BTClient implements Runnable {
 					begin=16384;
 				}*/
 				
-				if(this.checkIfAvailable(index)){
-					BTClient.u=u+length; 
+				if(BTClient.checkIfAvailable(index)){
+					BTClient.u=BTClient.u+length; 
 					System.arraycopy(BTClient.downloaded[index], begin, block, 0, length);
 					if(begin==435){
 						begin=16384;
@@ -153,7 +156,7 @@ public class Peer extends BTClient implements Runnable {
 					try {
 						Thread.sleep(9000);
 					} catch (InterruptedException e) {	}
-					BTClient.u=u+length; 
+					BTClient.u=BTClient.u+length; 
 					System.arraycopy(BTClient.downloaded[index], begin, block, 0, length);
 					if(begin==435){
 						begin=16384;

@@ -1,6 +1,6 @@
 package btclient;
 
-public class Tracker extends BTClient implements Runnable {
+public class Tracker  implements Runnable {
 
 	public void run(){
 		

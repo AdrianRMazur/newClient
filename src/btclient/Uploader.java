@@ -11,8 +11,7 @@ public class Uploader implements Runnable {
 
 	int port = Constants.OUR_PORT;
 	ServerSocket serverSide;
-
-	public Uploader() throws IOException {
+	public Uploader( ) throws IOException {
 		serverSide = new ServerSocket(port);
 		//serverSide.setSoTimeout(10000);
 	}
@@ -35,7 +34,7 @@ public class Uploader implements Runnable {
 				return;
 			}
 			con.close();
-		} catch (IOException e) {
+		} catch (IOException | InterruptedException e) {
 			return;
 		}
 		//}

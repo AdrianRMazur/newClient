@@ -16,9 +16,11 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Scanner;
 
+import GUI.DisplayPanel;
 
 
-public class Downloader extends BTClient implements Runnable{ 
+
+public class Downloader  implements Runnable{ 
 	public   int port;
 	public  String ip = null;
 	private  Socket s; 
@@ -29,16 +31,23 @@ public class Downloader extends BTClient implements Runnable{
 	private int tempholder =0;
 	private static int exiter;
 	
+	private int peernumber; 
 	
 	 
 	
-	public Downloader(Map<ByteBuffer,Object> peerinfo) {
+	public Downloader(Map<ByteBuffer,Object> peerinfo, int x) {
 		
 		port = (Integer) peerinfo.get(Constants.PORT);
 		
 		try {
 			ip = new String ( ((ByteBuffer)peerinfo.get(Constants.IP)).array(), "ASCII" );
 		} catch (UnsupportedEncodingException e) {}
+		
+		peernumber = x; 
+		
+		DisplayPanel.data[x][0] = ip; 
+		DisplayPanel.data[x][1] = port;
+		DisplayPanel.data[x][2] = "NO";
 	}
 	
 	private boolean openSocket(){
@@ -108,7 +117,7 @@ public class Downloader extends BTClient implements Runnable{
 
 		while (unChoke == false) {
 			byte[] interested = new byte[5];
-			System.arraycopy(toEndianArray(1), 0, interested, 0, 4);
+			System.arraycopy(BTClient.toEndianArray(1), 0, interested, 0, 4);
 			interested[4] = (byte) 2;
 			try {
 				dataout.write(interested);
@@ -144,37 +153,39 @@ public class Downloader extends BTClient implements Runnable{
 	
 	private  boolean getdata(){
 		 
-		int lastpiecelength= torrentinfo.file_length - (torrentinfo.piece_length * (torrentinfo.piece_hashes.length-1));
+		int lastpiecelength= BTClient.torrentinfo.file_length - (BTClient.torrentinfo.piece_length * (BTClient.torrentinfo.piece_hashes.length-1));
 		int count = 0;
-		while (count < completedDL.length && completedDL[count]==true ){
+		while (count < BTClient.completedDL.length && BTClient.completedDL[count]==true ){
 			count++;
 		}
+		//DisplayPanel.add1(ip, port, peernumber);
+
 		
-		
-		for (; count <downloaded.length; count++){
-			if (count % 25 == 0)
-				percentage(); 
+		for (; count <BTClient.downloaded.length; count++){
+			
+			DisplayPanel.data[peernumber][2] = "YES";
+			percentage(); 
 			int temp = 0; 
-			if (startedDL[count] == true){
+			if (BTClient.startedDL[count] == true){
 				continue; 
 			}
 			else{ 
-				startedDL[count]=true;
+				BTClient.startedDL[count]=true;
 			}
 			
 		
 			for (;;){
 				byte [] msgrequest = new byte [17];
-				System.arraycopy(toEndianArray(13), 0, msgrequest, 0, 4);
+				System.arraycopy(BTClient.toEndianArray(13), 0, msgrequest, 0, 4);
 				msgrequest[4] = (byte)6;
 				// normal pieces 
-				if (count < torrentinfo.piece_hashes.length-1){
+				if (count < BTClient.torrentinfo.piece_hashes.length-1){
 					if (temp==0){
-						downloaded[count] = new byte [torrentinfo.piece_length];
+						BTClient.downloaded[count] = new byte [BTClient.torrentinfo.piece_length];
 					}
-					System.arraycopy(toEndianArray(count), 0, msgrequest, 5, 4);
-					System.arraycopy(toEndianArray(temp), 0, msgrequest, 9, 4);
-					System.arraycopy(toEndianArray(16384), 0, msgrequest, 13, 4);
+					System.arraycopy(BTClient.toEndianArray(count), 0, msgrequest, 5, 4);
+					System.arraycopy(BTClient.toEndianArray(temp), 0, msgrequest, 9, 4);
+					System.arraycopy(BTClient.toEndianArray(16384), 0, msgrequest, 13, 4);
 					
 					try {
 						dataout.write(msgrequest);
@@ -196,13 +207,13 @@ public class Downloader extends BTClient implements Runnable{
 					
 					for (int c = temp; c< 16384+temp; c++){
 						try {
-							downloaded [count][c] = datain.readByte();
+							BTClient.downloaded [count][c] = datain.readByte();
 						} catch (IOException e) {
 							return false; 
 						}
 					}
 					
-					if (temp + 16384 == torrentinfo.piece_length)
+					if (temp + 16384 == BTClient.torrentinfo.piece_length)
 						break; 
 					else
 						temp = temp + 16384; 
@@ -214,18 +225,18 @@ public class Downloader extends BTClient implements Runnable{
 					
 						size = lastpiecelength; 
 						if(temp==0){
-							downloaded[count] = new byte[size];
+							BTClient.downloaded[count] = new byte[size];
 						}	
 					} else if (temp ==0){
-						downloaded[count] = new byte [size + (lastpiecelength-size)];
+						BTClient.downloaded[count] = new byte [size + (lastpiecelength-size)];
 					}
 					
 					lastpiecelength = lastpiecelength - 16384;
 			
 					
-					System.arraycopy(toEndianArray(count), 0, msgrequest, 5, 4);
-					System.arraycopy(toEndianArray(temp), 0, msgrequest, 9, 4);
-					System.arraycopy(toEndianArray(size), 0, msgrequest, 13, 4);
+					System.arraycopy(BTClient.toEndianArray(count), 0, msgrequest, 5, 4);
+					System.arraycopy(BTClient.toEndianArray(temp), 0, msgrequest, 9, 4);
+					System.arraycopy(BTClient.toEndianArray(size), 0, msgrequest, 13, 4);
 					
 					try {
 						dataout.write(msgrequest);
@@ -248,7 +259,7 @@ public class Downloader extends BTClient implements Runnable{
 					
 					for (int c = temp; c< size+temp; c++){
 						try {
-							downloaded[count][c] = datain.readByte();
+							BTClient.downloaded[count][c] = datain.readByte();
 						} catch (IOException e) {
 							return false; 
 						}
@@ -262,11 +273,11 @@ public class Downloader extends BTClient implements Runnable{
 				}
 				
 			}
-			completedDL[count] = true; 
-			if (stopthread == true){
-				threadstopped = true; 
+			BTClient.completedDL[count] = true; 
+			if (BTClient.stopthread == true){
+				BTClient.threadstopped = true; 
 				try {
-					Serialization.serialize(downloaded, fileName);
+					Serialization.serialize(BTClient.downloaded, BTClient.fileName);
 				} catch (IOException e) {
 				}
 				break; 
@@ -278,14 +289,14 @@ public class Downloader extends BTClient implements Runnable{
 	
 	private void percentage(){
 		float z = 0;
-		for (int c = 0; c< completedDL.length; c++){
-			if (completedDL[c]== true){
+		for (int c = 0; c< BTClient.completedDL.length; c++){
+			if (BTClient.completedDL[c]== true){
 				z++;
 			}	
 		}		
 		
-		int x = (int)((z*100.0f)/completedDL.length) ;
-		System.out.print("..."+x +"%");
+		int x = (int)((z*100.0f)/BTClient.completedDL.length) ;
+		DisplayPanel.percent.setText((Integer.toString(x) + "%"));
 		
 		return ; 
 		 
@@ -296,7 +307,7 @@ public class Downloader extends BTClient implements Runnable{
 		
 		if(BTClient.localIP!=null){
 			if(!(ip.contains(BTClient.localIP))){
-				System.out.println("The peer at IP "+ ip+ " is not contained within the provided localIP");
+				DisplayPanel.error("ERROR: The peer at IP "+ ip+ " is not contained within the provided localIP");
 				return; 
 			}
 		}
@@ -311,9 +322,9 @@ public class Downloader extends BTClient implements Runnable{
 		}
 
 		Message message = new Message(Constants.BITTORRENTPROTOCOL,
-				Constants.PEERID, torrentinfo);
+				Constants.PEERID, BTClient.torrentinfo);
 
-		if (shakeHands(message, torrentinfo) == false) {
+		if (shakeHands(message, BTClient.torrentinfo) == false) {
 			closeSocket();
 			return;
 		}
@@ -324,14 +335,12 @@ public class Downloader extends BTClient implements Runnable{
 		
 	
 		if (getdata() == false) {
-			System.out.println();
-			System.out.println("Error getting data");
+			DisplayPanel.error("ERROR getting data");
 			closeSocket();
 			return;
 		}
-		if (stopthread!=true){
-			System.out.println();
-			System.out.println("Download is complete.\nType 'exit' to exit the program");
+		if (BTClient.stopthread!=true){
+			DisplayPanel.error("DOWNLOAD COMPLETE. PLEASE CLOSE");
 		}	
 		closeSocket();
 	}
