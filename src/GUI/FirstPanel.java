@@ -37,10 +37,10 @@ public class FirstPanel extends JFrame{
 
 				dispose();
 				System.exit(1);
-				
+
 			}
 		});
-		
+
 		help.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String x = "-Type the torrent name and the destination file \n-Follow the prompts"
